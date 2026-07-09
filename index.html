@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oferta Certa</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#222}
+header{background:#ffe600;padding:25px;text-align:center}
+header h1{font-size:38px;margin:0}
+header p{font-size:18px}
+input{width:90%;max-width:600px;padding:14px;border-radius:12px;border:0;font-size:16px}
+.banner{background:white;margin:20px;padding:25px;border-radius:18px;text-align:center;box-shadow:0 4px 15px #0001}
+.cats{display:flex;gap:10px;overflow-x:auto;padding:15px}
+.cats button{border:0;background:white;padding:10px 15px;border-radius:30px;font-weight:bold}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;padding:20px}
+.card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 4px 15px #0002}
+.img{height:170px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:55px}
+.info{padding:15px}
+.tag{background:#eaf2ff;color:#3483fa;padding:5px 10px;border-radius:20px;font-size:12px}
+.price{font-size:26px;color:#00a650;font-weight:bold}
+.btn{display:block;background:#3483fa;color:white;text-align:center;text-decoration:none;padding:12px;border-radius:10px;font-weight:bold}
+footer{background:#111;color:white;text-align:center;padding:25px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🛒 Oferta Certa</h1>
+<p>As melhores ofertas do Mercado Livre em um só lugar</p>
+<input id="search" placeholder="🔍 Pesquise produto ou categoria">
+</header>
+
+<section class="banner">
+<h2>🔥 Ofertas selecionadas para você</h2>
+<p>Produtos com bom preço, categorias organizadas e compra direto pelo Mercado Livre.</p>
+</section>
+
+<div class="cats">
+<button onclick="filterCat('Todos')">Todos</button>
+<button onclick="filterCat('Ferramentas')">Ferramentas</button>
+<button onclick="filterCat('Casa')">Casa</button>
+<button onclick="filterCat('Cozinha')">Cozinha</button>
+<button onclick="filterCat('Automotivo')">Automotivo</button>
+<button onclick="filterCat('Eletrônicos')">Eletrônicos</button>
+</div>
+
+<main class="grid" id="products"></main>
+
+<footer>
+<h2>Oferta Certa</h2>
+<p>Divulgação de ofertas e links de afiliado.</p>
+</footer>
+
+<script>
+const products=[
+{n:"Jogo 16 Chaves Combinadas com Catraca Ajustável",p:"R$ 499,00",c:"Ferramentas",e:"🔧",l:"https://meli.la/1kaH9BV"},
+{n:"Jogo de Soquetes de Impacto Longos 1/2 - 10 Peças",p:"R$ 42,98",c:"Ferramentas",e:"⚫",l:"https://meli.la/27JeXYb"},
+{n:"Kit 16 Peças Chaves de Catraca 72 Dentes",p:"R$ 106,51",c:"Ferramentas",e:"🔩",l:"https://meli.la/2zGM9Yx"},
+{n:"Luminária LED Decorativa para Casa",p:"R$ 39,90",c:"Casa",e:"💡",l:"#"},
+{n:"Organizador Multiuso para Cozinha",p:"R$ 29,90",c:"Cozinha",e:"🍳",l:"#"},
+{n:"Suporte Veicular para Celular",p:"R$ 24,90",c:"Automotivo",e:"🚗",l:"#"},
+{n:"Fone Bluetooth Sem Fio",p:"R$ 59,90",c:"Eletrônicos",e:"🎧",l:"#"},
+{n:"Smartwatch Esportivo",p:"R$ 99,90",c:"Eletrônicos",e:"⌚",l:"#"}
+];
+
+let cat="Todos";
+
+function render(){
+let q=document.getElementById("search").value.toLowerCase();
+let list=products.filter(x=>
+(cat==="Todos"||x.c===cat)&&
+(x.n.toLowerCase().includes(q)||x.c.toLowerCase().includes(q))
+);
+document.getElementById("products").innerHTML=list.map(x=>`
+<div class="card">
+<div class="img">${x.e}</div>
+<div class="info">
+<span class="tag">${x.c}</span>
+<h3>${x.n}</h3>
+<p class="price">${x.p}</p>
+<a class="btn" href="${x.l}" target="_blank">Comprar no Mercado Livre</a>
+</div>
+</div>`).join("");
+}
+
+function filterCat(c){cat=c;render()}
+document.getElementById("search").addEventListener("input",render);
+render();
+</script>
+
+</body>
+</html>
