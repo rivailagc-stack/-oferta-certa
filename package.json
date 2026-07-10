@@ -1,9 +1,0 @@
-{
-  "name": "oferta-certa-v11",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "@sparticuz/chromium": "^126.0.0",
-    "puppeteer-core": "^22.15.0"
-  }
-}
