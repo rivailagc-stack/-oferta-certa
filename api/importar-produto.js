@@ -1,110 +1,58 @@
 export default async function handler(req, res) {
   try {
-    const { linkAfiliado, linkProduto, url } = req.query;
-    const link = linkAfiliado || linkProduto || url;
+    const { linkAfiliado, linkProduto, codigoMLB, url } = req.query;
 
-    if (!link) {
-      return res.status(400).json({ error: "Informe seu link meli.la ou link do Mercado Livre." });
+    const afiliado = linkAfiliado || url || "";
+    const link = linkProduto || linkAfiliado || url || "";
+
+    function normalizarMLB(valor) {
+      if (!valor) return null;
+      const m = String(valor).match(/MLB-?\d{6,}/i);
+      if (!m) return null;
+      return m[0].replace("-", "").toUpperCase();
     }
 
-    let urlFinal = link;
-    let html = "";
+    let itemId = normalizarMLB(codigoMLB) || normalizarMLB(linkProduto);
 
-    async function abrirLink(u) {
-      const resposta = await fetch(u, {
-        method: "GET",
-        redirect: "follow",
-        headers: {
-          "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1",
-          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-        }
-      });
-      const texto = await resposta.text();
-      return { finalUrl: resposta.url || u, html: texto };
-    }
-
-    function acharMLB(texto) {
-      if (!texto) return null;
-      const patterns = [
-        /MLB-?\d{6,}/i,
-        /"item_id"\s*:\s*"?(MLB-?\d{6,})"?/i,
-        /"id"\s*:\s*"?(MLB-?\d{6,})"?/i,
-        /\/(MLB-?\d{6,})-/i
-      ];
-      for (const p of patterns) {
-        const m = String(texto).match(p);
-        if (m) return (m[1] || m[0]).replace(/[/"']/g, "");
-      }
-      return null;
-    }
-
-    function linksDoHtml(texto) {
-      if (!texto) return [];
-      const links = [];
-      const regex = /https?:\/\/[^"' <>()]+/gi;
-      let m;
-      while ((m = regex.exec(texto)) !== null) {
-        const l = m[0].replace(/\\u002F/g, "/").replace(/&amp;/g, "&");
-        if (l.includes("mercadolivre") || l.includes("mercadolibre") || l.includes("produto.mercadolivre")) {
-          links.push(l);
-        }
-      }
-      return [...new Set(links)].slice(0, 8);
-    }
-
-    // 1) tenta abrir o link informado
-    try {
-      const aberto = await abrirLink(link);
-      urlFinal = aberto.finalUrl;
-      html = aberto.html;
-    } catch (e) {}
-
-    let itemId = acharMLB(urlFinal) || acharMLB(html);
-
-    // 2) tenta canonical / og:url / URLs do HTML
-    if (!itemId && html) {
-      const possiveis = linksDoHtml(html);
-      for (const l of possiveis) {
-        itemId = acharMLB(l);
-        if (itemId) {
-          urlFinal = l;
-          break;
-        }
-      }
-    }
-
-    // 3) tenta seguir links internos achados no HTML
-    if (!itemId && html) {
-      const possiveis = linksDoHtml(html);
-      for (const l of possiveis) {
-        try {
-          const aberto2 = await abrirLink(l);
-          itemId = acharMLB(aberto2.finalUrl) || acharMLB(aberto2.html);
-          if (itemId) {
-            urlFinal = aberto2.finalUrl;
-            html = aberto2.html;
-            break;
+    // tenta descobrir o MLB pelo link de afiliado ou pelo link informado
+    if (!itemId && link) {
+      try {
+        const resposta = await fetch(link, {
+          method: "GET",
+          redirect: "follow",
+          headers: {
+            "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
           }
-        } catch (e) {}
-      }
+        });
+
+        const urlFinal = resposta.url || link;
+        const html = await resposta.text();
+
+        itemId =
+          normalizarMLB(urlFinal) ||
+          normalizarMLB(html);
+      } catch (e) {}
     }
 
     if (!itemId) {
       return res.status(400).json({
-        error: "Não consegui descobrir o anúncio pelo meli.la. Abra o produto, toque em compartilhar e copie o link completo; mantenha seu meli.la no campo de afiliado."
+        error: "Não consegui achar o código MLB automaticamente. Cole o código MLB do produto ou o link completo do anúncio."
       });
     }
 
-    itemId = itemId.replace("-", "").toUpperCase();
-
+    // API oficial pública do Mercado Livre para o item
     const itemRes = await fetch(`https://api.mercadolibre.com/items/${itemId}`, {
       headers: { "accept": "application/json" }
     });
 
     const item = await itemRes.json();
 
-    if (!item || item.error) {
-      return res.status(404).json({ error: "Produto não encontrado no Mercado Livre." });
+    if (!item || item.error || !item.title) {
+      return res.status(404).json({
+        error: "Produto não encontrado na API oficial do Mercado Livre.",
+        itemId
+      });
     }
 
     const imagens = (item.pictures || [])
@@ -125,12 +73,12 @@ export default async function handler(req, res) {
       preco: item.price || 0,
       categoria,
       imagens,
-      linkCompra: linkAfiliado || link,
-      linkAfiliado: linkAfiliado || link,
-      linkProduto: item.permalink || urlFinal,
+      linkCompra: afiliado || item.permalink || link,
+      linkAfiliado: afiliado || "",
+      linkProduto: item.permalink || linkProduto || "",
       ativo: item.status === "active",
       estoque: item.available_quantity || 0,
-      permalink: item.permalink || urlFinal
+      permalink: item.permalink || ""
     });
 
   } catch (e) {
