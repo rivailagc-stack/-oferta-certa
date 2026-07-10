@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/verificar-produtos",
-      "schedule": "0 9 * * *"
-    }
-  ]
-}
