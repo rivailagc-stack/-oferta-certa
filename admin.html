@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Oferta Certa</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;color:#111827}
+header{background:#111827;color:white;padding:20px 16px;text-align:center;position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:28px}
+header p{margin:6px 0 0;color:#d1d5db}
+.wrap{max-width:1050px;margin:auto;padding:16px}
+.card{background:white;border-radius:18px;padding:18px;box-shadow:0 4px 18px #0002;margin-bottom:16px}
+.login{max-width:430px;margin:50px auto}
+label{font-weight:800;margin-top:12px;display:block}
+input,select{width:100%;padding:14px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;margin-top:6px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:900;cursor:pointer}
+.primary{background:#00a650;color:white;width:100%;margin-top:16px}
+.blue{background:#3483fa;color:white}.gray{background:#6b7280;color:white}.red{background:#ef4444;color:white}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.status{text-align:center;font-weight:900;margin-top:12px}.ok{color:#00a650}.erro{color:#ef4444}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:#111827;color:white;border-radius:16px;padding:16px;text-align:center}.stat b{display:block;font-size:28px}
+.tools{display:flex;gap:10px;flex-wrap:wrap}.search{flex:1;min-width:220px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.prod{background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}
+.img{height:145px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:44px}
+.img img{width:100%;height:100%;object-fit:cover}
+.info{padding:14px}.tag{background:#eaf2ff;color:#3483fa;padding:5px 10px;border-radius:20px;font-size:12px;display:inline-block}
+.price{color:#00a650;font-size:24px;font-weight:900;margin:8px 0}
+.preview{display:grid;grid-template-columns:130px 1fr;gap:12px;align-items:center;background:#f9fafb;border-radius:14px;padding:12px;margin-top:12px}
+.previewImg{height:110px;background:#eee;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.previewImg img{width:100%;height:100%;object-fit:cover}
+.uploadBox{background:#f9fafb;border:2px dashed #cbd5e1;border-radius:16px;padding:16px;margin-top:10px}
+.gallery{display:flex;gap:8px;overflow-x:auto;margin-top:10px}
+.gallery img{width:70px;height:70px;border-radius:10px;object-fit:cover;border:2px solid #e5e7eb}
+.toplinks{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.toplinks a{color:white;background:#3483fa;padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:bold}
+.hidden{display:none}
+@media(max-width:650px){.row{grid-template-columns:1fr}.preview{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="loginBox" class="login card">
+<h2>🔐 Entrar no Admin</h2><p>Digite a senha do painel.</p>
+<input id="senha" type="password" placeholder="Senha"><button class="btn primary" onclick="entrar()">Entrar</button><p id="loginMsg" class="status erro"></p>
+</div>
+<div id="app" class="hidden">
+<header><h1>🛠️ Admin Oferta Certa</h1><p>Cadastre produtos e envie várias imagens pelo celular</p><div class="toplinks"><a href="index.html">Ver loja</a><a href="#" onclick="sair()">Sair</a></div></header>
+<div class="wrap">
+<div class="stats"><div class="stat"><b id="totalProdutos">0</b>Produtos</div><div class="stat"><b id="totalDestaques">0</b>Destaques</div><div class="stat"><b id="totalCategorias">0</b>Categorias</div></div>
+<div class="card">
+<h2 id="formTitle">➕ Adicionar produto</h2><input type="hidden" id="id">
+<label>Nome do produto</label><input id="nome" placeholder="Ex: Jogo de Chaves Catraca" oninput="atualizarPreview()">
+<div class="row"><div><label>Preço</label><input id="preco" type="number" step="0.01" placeholder="328.34" oninput="atualizarPreview()"></div><div><label>Categoria</label><input id="categoria" placeholder="Ex: Ferramentas" oninput="atualizarPreview()"></div></div>
+<label>📤 Imagens do produto</label>
+<div class="uploadBox">
+<input id="arquivoImagem" type="file" accept="image/*" multiple>
+<button class="btn blue" style="width:100%;margin-top:10px" onclick="uploadImagens()">Enviar imagens</button>
+<small>Você pode selecionar várias fotos. As URLs entram automaticamente.</small>
+<div id="uploadStatus" class="status"></div><div id="galeriaPreview" class="gallery"></div>
+</div>
+<label>URLs das imagens</label><input id="imagem" placeholder="URLs separadas por |" oninput="atualizarPreview()">
+<label>Link do Mercado Livre / afiliado</label><input id="link" placeholder="Cole aqui seu link" oninput="atualizarPreview()">
+<label>Destaque</label><select id="destaque" onchange="atualizarPreview()"><option value="false">Não</option><option value="true">Sim</option></select>
+<div class="preview"><div class="previewImg" id="previewImg">🛒</div><div><span class="tag" id="previewCat">Categoria</span><h3 id="previewNome">Nome do produto</h3><div class="price" id="previewPreco">R$ 0,00</div></div></div>
+<button class="btn primary" onclick="salvarProduto()">Salvar produto</button><button class="btn gray" style="width:100%;margin-top:10px" onclick="limparFormulario()">Limpar formulário</button><div id="status" class="status"></div>
+</div>
+<div class="card"><h2>📦 Produtos cadastrados</h2><div class="tools"><input class="search" id="buscaAdmin" placeholder="Buscar produto ou categoria..." oninput="renderProdutos()"><button class="btn blue" onclick="carregarProdutos()">Atualizar</button></div><div class="grid" id="lista" style="margin-top:14px">Carregando...</div></div>
+</div></div>
+<script>
+const SENHA_ADMIN="1234";
+const SUPABASE_URL="https://qodtxydbzqmymsuvamza.supabase.co";
+const SUPABASE_KEY="sb_publishable_l9HUHlKsyhyYhY9JWuIncA_EOuDEKeD";
+const BUCKET="produtos";
+let produtos=[];
+function entrar(){if(document.getElementById("senha").value===SENHA_ADMIN){localStorage.setItem("admin_ok","sim");document.getElementById("loginBox").classList.add("hidden");document.getElementById("app").classList.remove("hidden");carregarProdutos();}else document.getElementById("loginMsg").innerText="Senha incorreta."}
+function sair(){localStorage.removeItem("admin_ok");location.reload();}
+if(localStorage.getItem("admin_ok")==="sim"){document.getElementById("loginBox").classList.add("hidden");document.getElementById("app").classList.remove("hidden");carregarProdutos();}
+function msg(t,tipo="ok"){let s=document.getElementById("status");s.className="status "+tipo;s.innerText=t}
+function uploadMsg(t,tipo="ok"){let s=document.getElementById("uploadStatus");s.className="status "+tipo;s.innerText=t}
+function dinheiro(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function limparNomeArquivo(nome){return nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9.]+/g,"-")}
+function urls(){return (document.getElementById("imagem").value||"").split("|").map(x=>x.trim()).filter(Boolean)}
+async function uploadImagens(){
+ const files=[...document.getElementById("arquivoImagem").files];
+ if(!files.length){uploadMsg("Escolha uma ou mais imagens primeiro.","erro");return}
+ uploadMsg("Enviando imagens...");
+ const novas=[];
+ for(const file of files){
+  const ext=file.name.split(".").pop();
+  const nomeBase=limparNomeArquivo(document.getElementById("nome").value||"produto");
+  const fileName=`${Date.now()}-${Math.random().toString(36).slice(2)}-${nomeBase}.${ext}`;
+  const res=await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${fileName}`,{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,"Content-Type":file.type,"x-upsert":"true"},body:file});
+  if(!res.ok){uploadMsg("Erro no upload. Confirme bucket público e políticas INSERT/SELECT.","erro");return}
+  novas.push(`${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${fileName}`);
+ }
+ const todas=[...urls(),...novas];
+ document.getElementById("imagem").value=todas.join("|");
+ atualizarPreview();uploadMsg(`${novas.length} imagem(ns) enviada(s) com sucesso!`);
+}
+function atualizarPreview(){
+ const nome=document.getElementById("nome").value||"Nome do produto",preco=document.getElementById("preco").value||0,cat=document.getElementById("categoria").value||"Categoria",imgs=urls();
+ document.getElementById("previewNome").innerText=nome;document.getElementById("previewPreco").innerText="R$ "+dinheiro(preco);document.getElementById("previewCat").innerText=cat;document.getElementById("previewImg").innerHTML=imgs[0]?`<img src="${imgs[0]}">`:"🛒";document.getElementById("galeriaPreview").innerHTML=imgs.map(u=>`<img src="${u}">`).join("");
+}
+async function carregarProdutos(){const res=await fetch(`${SUPABASE_URL}/rest/v1/produtos?select=*&order=Id.desc`,{headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}});produtos=await res.json();renderProdutos();}
+function renderProdutos(){
+ const q=(document.getElementById("buscaAdmin")?.value||"").toLowerCase();
+ const lista=produtos.filter(p=>String(p.Nome||"").toLowerCase().includes(q)||String(p.Categoria||"").toLowerCase().includes(q));
+ document.getElementById("totalProdutos").innerText=produtos.length;document.getElementById("totalDestaques").innerText=produtos.filter(p=>p.Destaque).length;document.getElementById("totalCategorias").innerText=new Set(produtos.map(p=>p.Categoria).filter(Boolean)).size;
+ document.getElementById("lista").innerHTML=lista.map(p=>{const im=(p.Imagem||"").split("|")[0];return `<div class="prod"><div class="img">${im?`<img src="${im}">`:"🛒"}</div><div class="info"><span class="tag">${p.Categoria||"Sem categoria"}</span><h3>${p.Nome||""}</h3><div class="price">R$ ${dinheiro(p.Preco)}</div><p>${p.Destaque?"🔥 Destaque":"Produto comum"}</p><div class="actions"><button class="btn blue" onclick='editar(${JSON.stringify(p).replaceAll("'","&#39;")})'>Editar</button><button class="btn red" onclick="excluir(${p.Id})">Excluir</button></div></div></div>`}).join("")||"Nenhum produto encontrado.";
+}
+function editar(p){document.getElementById("formTitle").innerText="✏️ Editar produto";document.getElementById("id").value=p.Id;document.getElementById("nome").value=p.Nome||"";document.getElementById("preco").value=p.Preco||"";document.getElementById("categoria").value=p.Categoria||"";document.getElementById("imagem").value=p.Imagem||"";document.getElementById("link").value=p.Link||"";document.getElementById("destaque").value=String(p.Destaque||false);atualizarPreview();window.scrollTo({top:0,behavior:"smooth"});}
+function limparFormulario(){document.getElementById("formTitle").innerText="➕ Adicionar produto";["id","nome","preco","categoria","imagem","link"].forEach(x=>document.getElementById(x).value="");document.getElementById("arquivoImagem").value="";document.getElementById("destaque").value="false";atualizarPreview();msg("");uploadMsg("");}
+async function salvarProduto(){
+ const id=document.getElementById("id").value;
+ const produto={Nome:document.getElementById("nome").value.trim(),Preco:Number(document.getElementById("preco").value||0),Categoria:document.getElementById("categoria").value.trim(),Imagem:document.getElementById("imagem").value.trim(),Link:document.getElementById("link").value.trim(),Destaque:document.getElementById("destaque").value==="true"};
+ if(!produto.Nome||!produto.Link){msg("Preencha pelo menos Nome e Link.","erro");return}
+ const url=id?`${SUPABASE_URL}/rest/v1/produtos?Id=eq.${id}`:`${SUPABASE_URL}/rest/v1/produtos`,method=id?"PATCH":"POST";
+ const res=await fetch(url,{method,headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(produto)});
+ if(res.ok){msg(id?"Produto atualizado!":"Produto cadastrado!");limparFormulario();carregarProdutos();}else msg("Erro ao salvar. Verifique os campos.","erro");
+}
+async function excluir(id){if(!confirm("Excluir este produto?"))return;const res=await fetch(`${SUPABASE_URL}/rest/v1/produtos?Id=eq.${id}`,{method:"DELETE",headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}});if(res.ok){msg("Produto excluído.");carregarProdutos();}else msg("Erro ao excluir.","erro")}
+atualizarPreview();
+</script>
+</body>
+</html>
