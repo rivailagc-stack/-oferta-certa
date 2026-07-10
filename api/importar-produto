@@ -1,0 +1,96 @@
+export default async function handler(req, res) {
+  try {
+    const { linkProduto, linkAfiliado, url } = req.query;
+    const link = linkProduto || linkAfiliado || url;
+
+    if (!link) {
+      return res.status(400).json({ error: "Informe um link do Mercado Livre." });
+    }
+
+    let urlFinal = link;
+    let html = "";
+
+    try {
+      const resposta = await fetch(link, {
+        method: "GET",
+        redirect: "follow",
+        headers: {
+          "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1",
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        }
+      });
+
+      urlFinal = resposta.url || link;
+      html = await resposta.text();
+    } catch (e) {}
+
+    let match = String(urlFinal).match(/MLB-?\d+/i);
+    if (!match && html) match = html.match(/MLB-?\d+/i);
+
+    if (!match && html) {
+      const canonical = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i);
+      if (canonical && canonical[1]) {
+        urlFinal = canonical[1];
+        match = urlFinal.match(/MLB-?\d+/i);
+      }
+    }
+
+    if (!match && html) {
+      const og = html.match(/<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i);
+      if (og && og[1]) {
+        urlFinal = og[1];
+        match = urlFinal.match(/MLB-?\d+/i);
+      }
+    }
+
+    if (!match) {
+      return res.status(400).json({
+        error: "Não encontrei o código MLB. Use o link completo do anúncio no campo Link do anúncio e seu meli.la no campo Link de afiliado."
+      });
+    }
+
+    const itemId = match[0].replace("-", "").toUpperCase();
+
+    const itemRes = await fetch(`https://api.mercadolibre.com/items/${itemId}`, {
+      headers: { "accept": "application/json" }
+    });
+
+    const item = await itemRes.json();
+
+    if (!item || item.error) {
+      return res.status(404).json({ error: "Produto não encontrado no Mercado Livre." });
+    }
+
+    const imagens = (item.pictures || [])
+      .map(p => p.secure_url || p.url)
+      .filter(Boolean);
+
+    let categoria = item.category_id || "Mercado Livre";
+
+    try {
+      const catRes = await fetch(`https://api.mercadolibre.com/categories/${item.category_id}`);
+      const cat = await catRes.json();
+      if (cat && cat.name) categoria = cat.name;
+    } catch (e) {}
+
+    return res.status(200).json({
+      itemId,
+      nome: item.title || "",
+      preco: item.price || 0,
+      categoria,
+      imagens,
+      linkCompra: linkAfiliado || link,
+      linkAfiliado: linkAfiliado || link,
+      linkProduto: item.permalink || urlFinal,
+      ativo: item.status === "active",
+      estoque: item.available_quantity || 0,
+      permalink: item.permalink || urlFinal
+    });
+
+  } catch (e) {
+    return res.status(500).json({
+      error: "Erro ao importar produto.",
+      details: String(e)
+    });
+  }
+}
