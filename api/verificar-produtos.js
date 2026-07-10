@@ -1,31 +1,20 @@
 export default async function handler(req, res) {
   try {
-    const { url } = req.query;
+    const { codigoMLB, url } = req.query;
 
-    if (!url) {
-      return res.status(400).json({ ativo: false, error: "Informe a URL do produto." });
+    function normalizarMLB(valor) {
+      if (!valor) return null;
+      const m = String(valor).match(/MLB-?\d{6,}/i);
+      if (!m) return null;
+      return m[0].replace("-", "").toUpperCase();
     }
 
-    let finalUrl = url;
-    let html = "";
+    const itemId = normalizarMLB(codigoMLB) || normalizarMLB(url);
 
-    try {
-      const resposta = await fetch(url, {
-        method: "GET",
-        redirect: "follow",
-        headers: { "user-agent": "Mozilla/5.0" }
-      });
-      finalUrl = resposta.url || url;
-      html = await resposta.text();
-    } catch (e) {}
-
-    let match = String(finalUrl).match(/MLB-?\d{6,}/i) || String(html).match(/MLB-?\d{6,}/i);
-
-    if (!match) {
-      return res.status(400).json({ ativo: false, error: "Não encontrei o código MLB." });
+    if (!itemId) {
+      return res.status(400).json({ ativo: false, error: "Informe o código MLB ou link completo." });
     }
 
-    const itemId = match[0].replace("-", "").toUpperCase();
     const itemRes = await fetch(`https://api.mercadolibre.com/items/${itemId}`);
     const item = await itemRes.json();
 
@@ -39,7 +28,7 @@ export default async function handler(req, res) {
       nome: item.title || "",
       preco: item.price || 0,
       estoque: item.available_quantity || 0,
-      permalink: item.permalink || finalUrl
+      permalink: item.permalink || ""
     });
 
   } catch (e) {
