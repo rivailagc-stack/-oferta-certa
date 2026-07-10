@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin V5 | Oferta Certa</title>
+<style>
+body{margin:0;font-family:Arial;background:#f3f4f6;color:#111827}
+header{background:#111827;color:white;text-align:center;padding:20px}
+.wrap{max-width:900px;margin:auto;padding:16px}
+.card{background:white;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 4px 18px #0002}
+input,select{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px;margin-top:6px;box-sizing:border-box}
+label{font-weight:bold;margin-top:12px;display:block}
+.btn{border:0;border-radius:12px;padding:14px;font-weight:bold;margin-top:10px;cursor:pointer}
+.blue{background:#3483fa;color:white;width:100%}
+.green{background:#00a650;color:white;width:100%}
+.gray{background:#6b7280;color:white}
+.red{background:#ef4444;color:white}
+.status{text-align:center;font-weight:bold;margin-top:10px}
+.ok{color:#00a650}.erro{color:#ef4444}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.prod{background:white;border:1px solid #ddd;border-radius:16px;overflow:hidden}
+.img{height:150px;background:#eee;display:flex;align-items:center;justify-content:center}
+.img img{width:100%;height:100%;object-fit:cover}
+.info{padding:12px}
+.price{color:#00a650;font-size:22px;font-weight:900}
+.gallery{display:flex;gap:8px;overflow-x:auto;margin-top:10px}
+.gallery img{width:70px;height:70px;object-fit:cover;border-radius:10px;border:2px solid #ddd}
+small{color:#666}
+@media(max-width:650px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>🛠️ Admin Oferta Certa V5</h1>
+<p>Versão simples: sem pasta API</p>
+</header>
+
+<div class="wrap">
+
+<div class="card">
+<h2>🔗 Importar pelo link</h2>
+<p>Use o link completo do Mercado Livre que tenha <b>MLB</b> no endereço.</p>
+<input id="linkImportar" placeholder="Cole o link completo do Mercado Livre">
+<button class="btn blue" onclick="importarProduto()">Importar dados do produto</button>
+<div id="importStatus" class="status"></div>
+</div>
+
+<div class="card">
+<h2>➕ Produto</h2>
+<input type="hidden" id="id">
+
+<label>Nome</label>
+<input id="nome">
+
+<div class="row">
+<div>
+<label>Preço</label>
+<input id="preco" type="number" step="0.01">
+</div>
+<div>
+<label>Categoria</label>
+<input id="categoria">
+</div>
+</div>
+
+<label>URLs das imagens</label>
+<input id="imagem" placeholder="URLs separadas por |">
+<div id="galeria" class="gallery"></div>
+
+<label>Link do Mercado Livre / afiliado</label>
+<input id="link">
+
+<label>Destaque</label>
+<select id="destaque">
+<option value="false">Não</option>
+<option value="true">Sim</option>
+</select>
+
+<button class="btn green" onclick="salvarProduto()">Salvar Produto</button>
+<button class="btn gray" onclick="limpar()">Limpar</button>
+<div id="status" class="status"></div>
+</div>
+
+<div class="card">
+<h2>📦 Produtos cadastrados</h2>
+<button class="btn blue" onclick="carregarProdutos()">Atualizar lista</button>
+<div class="grid" id="lista" style="margin-top:14px"></div>
+</div>
+
+</div>
+
+<script>
+const SUPABASE_URL="https://qodtxydbzqmymsuvamza.supabase.co";
+const SUPABASE_KEY="sb_publishable_l9HUHlKsyhyYhY9JWuIncA_EOuDEKeD";
+
+function msg(el,t,ok=true){
+  const e=document.getElementById(el);
+  e.className="status "+(ok?"ok":"erro");
+  e.innerText=t;
+}
+function dinheiro(v){
+  return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function extrairMLB(url){
+  const m=String(url||"").match(/MLB-?(\d+)/i);
+  return m ? "MLB"+m[1] : null;
+}
+function atualizarGaleria(){
+  const imgs=(imagem.value||"").split("|").map(x=>x.trim()).filter(Boolean);
+  galeria.innerHTML=imgs.map(u=>`<img src="${u}">`).join("");
+}
+
+async function importarProduto(){
+  const url=linkImportar.value.trim();
+  const mlb=extrairMLB(url);
+  if(!mlb){
+    msg("importStatus","Não achei o código MLB. Abra o anúncio no Mercado Livre e copie o link completo.",false);
+    return;
+  }
+
+  msg("importStatus","Importando pelo Mercado Livre...");
+  try{
+    const r=await fetch(`https://api.mercadolibre.com/items/${mlb}`);
+    const p=await r.json();
+
+    if(!r.ok || p.error){
+      msg("importStatus","Produto não encontrado na API do Mercado Livre.",false);
+      return;
+    }
+
+    nome.value=p.title || "";
+    preco.value=p.price || 0;
+    categoria.value=p.category_id || "Mercado Livre";
+    imagem.value=(p.pictures || []).map(x=>x.secure_url || x.url).filter(Boolean).join("|");
+    link.value=url;
+    destaque.value="true";
+    atualizarGaleria();
+
+    msg("importStatus","Produto importado! Confira e clique em Salvar Produto.");
+  }catch(e){
+    msg("importStatus","Erro ao importar. Use o link completo do anúncio com MLB.",false);
+  }
+}
+
+async function salvarProduto(){
+  const produto={
+    Nome:nome.value.trim(),
+    Preco:Number(preco.value||0),
+    Categoria:categoria.value.trim(),
+    Imagem:imagem.value.trim(),
+    Link:link.value.trim(),
+    Destaque:destaque.value==="true"
+  };
+
+  if(!produto.Nome || !produto.Link){
+    msg("status","Preencha Nome e Link.",false);
+    return;
+  }
+
+  const isEdit=id.value;
+  const url=isEdit ? `${SUPABASE_URL}/rest/v1/produtos?Id=eq.${id.value}` : `${SUPABASE_URL}/rest/v1/produtos`;
+  const method=isEdit ? "PATCH" : "POST";
+
+  const r=await fetch(url,{
+    method,
+    headers:{
+      apikey:SUPABASE_KEY,
+      Authorization:`Bearer ${SUPABASE_KEY}`,
+      "Content-Type":"application/json",
+      Prefer:"return=minimal"
+    },
+    body:JSON.stringify(produto)
+  });
+
+  if(r.ok){
+    msg("status",isEdit ? "Produto atualizado!" : "Produto salvo!");
+    limpar();
+    carregarProdutos();
+  }else{
+    msg("status","Erro ao salvar no Supabase.",false);
+  }
+}
+
+function limpar(){
+  ["id","nome","preco","categoria","imagem","link","linkImportar"].forEach(x=>document.getElementById(x).value="");
+  destaque.value="false";
+  atualizarGaleria();
+}
+
+async function carregarProdutos(){
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/produtos?select=*&order=Id.desc`,{
+    headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}
+  });
+  const produtos=await r.json();
+
+  lista.innerHTML=produtos.map(p=>{
+    const im=(p.Imagem||"").split("|")[0];
+    return `
+    <div class="prod">
+      <div class="img">${im?`<img src="${im}">`:"🛒"}</div>
+      <div class="info">
+        <b>${p.Nome||""}</b>
+        <p>${p.Categoria||""}</p>
+        <div class="price">R$ ${dinheiro(p.Preco)}</div>
+        <button class="btn blue" onclick='editar(${JSON.stringify(p).replaceAll("'","&#39;")})'>Editar</button>
+        <button class="btn red" onclick="excluir(${p.Id})">Excluir</button>
+      </div>
+    </div>`;
+  }).join("") || "Nenhum produto.";
+}
+
+function editar(p){
+  id.value=p.Id;
+  nome.value=p.Nome||"";
+  preco.value=p.Preco||"";
+  categoria.value=p.Categoria||"";
+  imagem.value=p.Imagem||"";
+  link.value=p.Link||"";
+  destaque.value=String(p.Destaque||false);
+  atualizarGaleria();
+  scrollTo({top:0,behavior:"smooth"});
+}
+
+async function excluir(pid){
+  if(!confirm("Excluir produto?")) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/produtos?Id=eq.${pid}`,{
+    method:"DELETE",
+    headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`}
+  });
+  carregarProdutos();
+}
+
+imagem.addEventListener("input",atualizarGaleria);
+carregarProdutos();
+</script>
+</body>
+</html>
