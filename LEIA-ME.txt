@@ -1,0 +1,10 @@
+OFERTA CERTA V16
+
+1. Abra setup_storage.sql.
+2. Copie tudo para o SQL Editor do Supabase.
+3. Clique em Run.
+4. No GitHub, substitua admin.html, admin.js e style.css.
+5. Aguarde a Vercel publicar.
+6. Abra /admin.html e toque em Escolher imagem.
+
+Atenção: o upload está aberto temporariamente porque o painel ainda não possui login.
