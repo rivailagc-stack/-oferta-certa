@@ -1,0 +1,18 @@
+OFERTA CERTA V20 COMPACTA
+
+MELHORIAS
+- Cards menores, parecidos com Shopee e Mercado Livre.
+- 2 produtos por linha no celular.
+- 5 produtos por linha no computador.
+- Imagens completas sem cortar.
+- Título limitado a 2 linhas.
+- Descrição escondida nos cards para facilitar a leitura.
+- Preço e botão de compra mais compactos.
+- Mantém cliques, favoritos, categorias automáticas e compartilhamento.
+
+COMO ATUALIZAR
+1. Extraia o ZIP.
+2. Substitua todos os arquivos no GitHub.
+3. Faça o commit.
+4. Aguarde a Vercel publicar.
+5. Não precisa executar nenhum SQL novo.
