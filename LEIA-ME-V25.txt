@@ -1,0 +1,26 @@
+OFERTA CERTA V25 — LOJA HÍBRIDA
+
+O ZIP contém todos os arquivos do site.
+
+COMO ENVIAR PARA O GITHUB
+1. Extraia o ZIP no iPhone.
+2. No GitHub, abra o repositório.
+3. Toque em Add file > Upload files.
+4. Selecione TODOS os arquivos da pasta extraída, inclusive a pasta api.
+5. Faça o commit com a mensagem: Atualização Oferta Certa V25.
+6. Aguarde a Vercel publicar.
+
+ANTES DE USAR O MERCADO PAGO
+- Execute setup_v24.sql no Supabase.
+- Configure na Vercel:
+  MP_ACCESS_TOKEN
+  MP_WEBHOOK_SECRET
+  SUPABASE_URL
+  SUPABASE_SERVICE_ROLE_KEY
+  SITE_URL
+
+SITE_URL:
+https://oferta-certa.vercel.app
+
+IMPORTANTE
+Nunca coloque chaves secretas no config.js ou no GitHub público.
