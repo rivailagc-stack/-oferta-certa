@@ -1,166 +1,70 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel | Oferta Certa V14 Pro</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body class="admin-body">
-  <header class="admin-header">
-    <div>
-      <span class="eyebrow">PAINEL ADMINISTRATIVO</span>
-      <h1>Oferta Certa V14 Pro</h1>
-      <p>Cadastro manual rápido com link direto de afiliado.</p>
-    </div>
-    <a href="index.html" class="btn btn-secondary">Ver loja</a>
-  </header>
-
-  <main class="admin-layout">
-    <aside class="admin-sidebar">
-      <div class="stats-grid">
-        <article class="stat-card">
-          <strong id="totalProducts">0</strong>
-          <span>Produtos</span>
-        </article>
-        <article class="stat-card">
-          <strong id="totalFeatured">0</strong>
-          <span>Destaques</span>
-        </article>
-        <article class="stat-card">
-          <strong id="totalClicks">0</strong>
-          <span>Cliques</span>
-        </article>
-      </div>
-
-      <div class="tip-card">
-        <strong>Como cadastrar</strong>
-        <p>Cole o link <b>meli.la</b>, envie a imagem, informe título, preço e categoria.</p>
-        <p>O botão Comprar abrirá diretamente o anúncio do Mercado Livre.</p>
-      </div>
-    </aside>
-
-    <section class="admin-content">
-      <div class="admin-card">
-        <div class="card-heading">
-          <div>
-            <span class="eyebrow">NOVO PRODUTO</span>
-            <h2 id="formTitle">Cadastrar produto</h2>
-          </div>
-          <button id="cancelEditBtn" class="btn btn-ghost hidden" type="button">Cancelar edição</button>
-        </div>
-
-        <form id="productForm">
-          <input id="productId" type="hidden" />
-
-          <div class="form-grid">
-            <label class="field field-wide">
-              <span>Link de afiliado do Mercado Livre *</span>
-              <input id="affiliateLink" type="url" placeholder="https://meli.la/..." required />
-              <small>Este link será usado diretamente no botão Comprar.</small>
-            </label>
-
-            <label class="field field-wide">
-              <span>Título do produto *</span>
-              <input id="title" type="text" maxlength="90" placeholder="Ex.: Máquina Inversora de Solda 150A" required />
-            </label>
-
-            <label class="field">
-              <span>Preço atual *</span>
-              <input id="price" type="number" min="0" step="0.01" placeholder="499,90" required />
-            </label>
-
-            <label class="field">
-              <span>Preço anterior</span>
-              <input id="oldPrice" type="number" min="0" step="0.01" placeholder="599,90" />
-            </label>
-
-            <label class="field">
-              <span>Categoria *</span>
-              <select id="category" required>
-                <option value="">Selecione</option>
-                <option>Ferramentas</option>
-                <option>Eletrônicos</option>
-                <option>Casa e Cozinha</option>
-                <option>Beleza</option>
-                <option>Automotivo</option>
-                <option>Moda</option>
-                <option>Outros</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span>Selo da capa</span>
-              <select id="badge">
-                <option value="OFERTA">OFERTA</option>
-                <option value="MAIS VENDIDO">MAIS VENDIDO</option>
-                <option value="NOVIDADE">NOVIDADE</option>
-                <option value="IMPERDÍVEL">IMPERDÍVEL</option>
-                <option value="">Sem selo</option>
-              </select>
-            </label>
-
-            <label class="field field-wide">
-              <span>Descrição curta</span>
-              <textarea id="description" rows="3" maxlength="220" placeholder="Resumo dos principais benefícios do produto."></textarea>
-            </label>
-
-            <label class="field field-wide">
-              <span>Imagem do produto *</span>
-              <input id="imageFile" type="file" accept="image/*" />
-              <small>Formato recomendado: quadrado, 1200 × 1200 px.</small>
-            </label>
-
-            <label class="check-field">
-              <input id="featured" type="checkbox" />
-              <span>Mostrar como produto em destaque</span>
-            </label>
-          </div>
-
-          <div class="preview-wrap">
-            <div>
-              <span class="eyebrow">PRÉVIA DA CAPA</span>
-              <h3>Imagem padrão da loja</h3>
-              <p>O sistema aplica selo, categoria e identidade visual automaticamente.</p>
-            </div>
-
-            <article id="coverPreview" class="product-card preview-card" data-category="Outros">
-              <div class="product-image-wrap">
-                <span id="previewBadge" class="badge">OFERTA</span>
-                <img id="previewImage" src="https://placehold.co/800x800?text=Foto+do+produto" alt="Prévia do produto" />
-              </div>
-              <div class="product-body">
-                <span id="previewCategory" class="category-tag">Categoria</span>
-                <h3 id="previewTitle">Título do produto</h3>
-                <div class="price-row">
-                  <strong id="previewPrice">R$ 0,00</strong>
-                  <del id="previewOldPrice" class="hidden"></del>
-                </div>
-                <button type="button" class="buy-button">Comprar no Mercado Livre</button>
-              </div>
-            </article>
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary" id="saveBtn">Publicar produto</button>
-            <button type="button" class="btn btn-secondary" id="resetBtn">Limpar</button>
-          </div>
-        </form>
-      </div>
-
-      <div class="admin-card">
-        <div class="card-heading">
-          <div>
-            <span class="eyebrow">PRODUTOS CADASTRADOS</span>
-            <h2>Gerenciar catálogo</h2>
-          </div>
-        </div>
-
-        <div id="adminProductsList" class="admin-products-list"></div>
-      </div>
-    </section>
-  </main>
-
   <script src="admin.js"></script>
+
+  <style>
+    .images-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .image-preview-item {
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #e5e7eb;
+      border-radius: 14px;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .image-preview-item.cover {
+      border-color: #ff6500;
+      box-shadow: 0 0 0 2px rgba(255, 101, 0, 0.15);
+    }
+
+    .image-preview-item img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .image-preview-actions {
+      display: flex;
+      gap: 5px;
+      padding: 6px;
+    }
+
+    .image-preview-actions button {
+      flex: 1;
+      min-height: 32px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .set-cover-button {
+      color: #ffffff;
+      background: #ff6500;
+    }
+
+    .remove-image-button {
+      color: #ffffff;
+      background: #dc2626;
+    }
+
+    .cover-label {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      padding: 4px 7px;
+      border-radius: 7px;
+      color: #ffffff;
+      background: #ff6500;
+      font-size: 10px;
+      font-weight: 800;
+    }
+  </style>
 </body>
-</html>
