@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffe600">
+  <title>Oferta Certa | Ofertas selecionadas</title>
+  <meta name="description" content="Ofertas selecionadas com links diretos para compra no Mercado Livre.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-content">
+      <a class="brand" href="index.html" aria-label="Oferta Certa">
+        <span class="brand-icon">⚡</span>
+        <span>
+          <strong>Oferta Certa</strong>
+          <small>Achou, clicou, comprou</small>
+        </span>
+      </a>
+
+      <a class="admin-link" href="admin.html">Administrar</a>
+    </div>
+  </header>
+
+  <div class="promo-strip">
+    <div class="container promo-strip-content">
+      <span>🔥 Ofertas selecionadas</span>
+      <span>⚡ Preços atualizados</span>
+      <span>🛍️ Shopee, Mercado Livre e mais</span>
+    </div>
+  </div>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <span class="hero-badge">Ofertas selecionadas</span>
+        <h1>Produtos úteis com acesso direto à compra</h1>
+        <p>Escolha a oferta e toque em comprar. Você será enviado diretamente para a página do produto.</p>
+
+        <div class="search-panel search-panel-v18">
+          <input id="busca" type="search" placeholder="Buscar produto..." autocomplete="off">
+
+          <select id="categoria">
+            <option value="">Todas as categorias</option>
+          </select>
+
+          <select id="marketplaceFiltro">
+            <option value="">Todas as lojas</option>
+          </select>
+
+          <select id="ordenacao">
+            <option value="destaques">Destaques primeiro</option>
+            <option value="recentes">Mais recentes</option>
+            <option value="mais-clicados">Mais clicados</option>
+            <option value="menor-preco">Menor preço</option>
+            <option value="maior-preco">Maior preço</option>
+            <option value="az">Nome: A–Z</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="container products-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">OFERTAS</p>
+          <h2>Produtos disponíveis</h2>
+        </div>
+        <span id="contadorProdutos" class="counter">0 produtos</span>
+      </div>
+
+      <div id="mensagem" class="message hidden"></div>
+      <div id="produtos" class="products-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <strong>Oferta Certa</strong>
+      <p>Este site pode receber comissão por compras realizadas pelos links indicados, sem custo adicional para você.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="loja.js"></script>
+</body>
+</html>
