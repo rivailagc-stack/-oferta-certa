@@ -1,0 +1,18 @@
+OFERTA CERTA V21 PRO
+
+NOVIDADES
+- Filtro por loja.
+- Faixa promocional no topo.
+- Cards ainda mais compactos.
+- Avaliação visual por estrelas.
+- Quantidade de vendidos.
+- Melhor alinhamento dos cards.
+- Visual mais próximo de Shopee e Mercado Livre.
+- Mantém favoritos, cliques, categorias e compartilhamento.
+
+COMO ATUALIZAR
+1. Extraia o ZIP.
+2. Substitua todos os arquivos no GitHub.
+3. Faça o commit.
+4. Aguarde a Vercel publicar.
+5. Não precisa executar SQL novo.
