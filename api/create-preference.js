@@ -1,48 +1,54 @@
+import {
+  normalizePostalCode,
+  getOwnProducts,
+  calculateShipping,
+  supabaseHeaders
+} from "./shipping-utils.js";
+
 const MP_API = "https://api.mercadopago.com";
-const SUPABASE_HEADERS = () => ({
-  apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-  Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-  "Content-Type": "application/json"
-});
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Método não permitido." });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Método não permitido." });
+  }
 
   try {
     const accessToken = process.env.MP_ACCESS_TOKEN;
-    const supabaseUrl = process.env.SUPABASE_URL;
     const siteUrl = (process.env.SITE_URL || "https://oferta-certa.vercel.app").replace(/\/$/, "");
 
-    if (!accessToken || !supabaseUrl || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      return res.status(500).json({ error: "Credenciais do pagamento ainda não configuradas." });
+    if (!accessToken || !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return res.status(500).json({ error: "Credenciais do pagamento não configuradas." });
     }
 
     const requestedItems = Array.isArray(req.body?.items) ? req.body.items : [];
+    const postalCode = normalizePostalCode(req.body?.shipping?.postal_code);
+    const serviceId = Number(req.body?.shipping?.service_id);
+
     if (!requestedItems.length || requestedItems.length > 30) {
       return res.status(400).json({ error: "Carrinho inválido." });
     }
+    if (postalCode.length !== 8 || !Number.isFinite(serviceId)) {
+      return res.status(400).json({ error: "Calcule e escolha o frete novamente." });
+    }
 
-    const ids = [...new Set(requestedItems.map(item => String(item.id)))];
-    const query = encodeURIComponent(`(${ids.join(",")})`);
+    const products = await getOwnProducts(requestedItems);
+    const shippingOptions = await calculateShipping({
+      postalCode,
+      requestedItems,
+      products
+    });
 
-    const productResponse = await fetch(
-      `${supabaseUrl}/rest/v1/products?select=id,title,description,price,image_url,stock,shipping_price,product_type,active&id=in.${query}`,
-      { headers: SUPABASE_HEADERS() }
+    const selectedShipping = shippingOptions.find(
+      option => Number(option.service_id) === serviceId
     );
 
-    if (!productResponse.ok) throw new Error("Não foi possível validar os produtos.");
-    const products = await productResponse.json();
+    if (!selectedShipping) {
+      return res.status(400).json({ error: "A opção de frete expirou. Calcule novamente." });
+    }
 
     const items = requestedItems.map(requested => {
       const product = products.find(p => String(p.id) === String(requested.id));
       const quantity = Math.max(1, Math.min(99, Number(requested.quantity || 1)));
-
-      if (!product || !product.active || product.product_type !== "own") {
-        throw new Error("Um produto do carrinho não está disponível.");
-      }
-      if (quantity > Number(product.stock || 0)) {
-        throw new Error(`Estoque insuficiente para ${product.title}.`);
-      }
 
       return {
         id: String(product.id),
@@ -55,42 +61,34 @@ export default async function handler(req, res) {
       };
     });
 
-    const shipping = requestedItems.reduce((sum, requested) => {
-      const product = products.find(p => String(p.id) === String(requested.id));
-      return sum + Number(product?.shipping_price || 0);
-    }, 0);
+    const productsTotal = items.reduce(
+      (sum, item) => sum + item.unit_price * item.quantity,
+      0
+    );
+    const shippingTotal = Number(selectedShipping.price);
+    const total = productsTotal + shippingTotal;
 
-    const total = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0) + shipping;
-
-    const orderResponse = await fetch(`${supabaseUrl}/rest/v1/orders`, {
+    const orderResponse = await fetch(`${process.env.SUPABASE_URL}/rest/v1/orders`, {
       method: "POST",
-      headers: { ...SUPABASE_HEADERS(), Prefer: "return=representation" },
+      headers: { ...supabaseHeaders(), Prefer: "return=representation" },
       body: JSON.stringify({
         status: "pending",
         total,
-        shipping_total: shipping,
+        shipping_total: shippingTotal,
+        shipping_service_id: selectedShipping.service_id,
+        shipping_service_name: `${selectedShipping.company} — ${selectedShipping.name}`,
+        shipping_postal_code: postalCode,
+        shipping_delivery_time: selectedShipping.delivery_time,
         items: requestedItems,
         customer_email: null
       })
     });
 
-    if (!orderResponse.ok) throw new Error("Não foi possível criar o pedido.");
-    const [order] = await orderResponse.json();
+    if (!orderResponse.ok) {
+      throw new Error("Não foi possível criar o pedido.");
+    }
 
-    const preferenceBody = {
-      items,
-      shipments: shipping > 0 ? { cost: shipping, mode: "not_specified" } : undefined,
-      external_reference: String(order.id),
-      back_urls: {
-        success: `${siteUrl}/pagamento-sucesso.html`,
-        pending: `${siteUrl}/pagamento-pendente.html`,
-        failure: `${siteUrl}/pagamento-falhou.html`
-      },
-      auto_return: "approved",
-      notification_url: `${siteUrl}/api/mercadopago-webhook`,
-      statement_descriptor: "OFERTA CERTA",
-      metadata: { order_id: String(order.id) }
-    };
+    const [order] = await orderResponse.json();
 
     const preferenceResponse = await fetch(`${MP_API}/checkout/preferences`, {
       method: "POST",
@@ -99,17 +97,37 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
         "X-Idempotency-Key": String(order.id)
       },
-      body: JSON.stringify(preferenceBody)
+      body: JSON.stringify({
+        items,
+        shipments: {
+          cost: shippingTotal,
+          mode: "not_specified"
+        },
+        external_reference: String(order.id),
+        back_urls: {
+          success: `${siteUrl}/pagamento-sucesso.html`,
+          pending: `${siteUrl}/pagamento-pendente.html`,
+          failure: `${siteUrl}/pagamento-falhou.html`
+        },
+        auto_return: "approved",
+        notification_url: `${siteUrl}/api/mercadopago-webhook`,
+        statement_descriptor: "OFERTA CERTA",
+        metadata: {
+          order_id: String(order.id),
+          shipping_service_id: selectedShipping.service_id
+        }
+      })
     });
 
     const preference = await preferenceResponse.json();
+
     if (!preferenceResponse.ok) {
-      throw new Error(preference.message || "Mercado Pago recusou a criação do checkout.");
+      throw new Error(preference.message || "Mercado Pago recusou o checkout.");
     }
 
-    await fetch(`${supabaseUrl}/rest/v1/orders?id=eq.${order.id}`, {
+    await fetch(`${process.env.SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}`, {
       method: "PATCH",
-      headers: SUPABASE_HEADERS(),
+      headers: supabaseHeaders(),
       body: JSON.stringify({ preference_id: preference.id })
     });
 
@@ -120,6 +138,8 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error(error);
-    return res.status(400).json({ error: error.message || "Erro ao criar pagamento." });
+    return res.status(400).json({
+      error: error.message || "Erro ao criar pagamento."
+    });
   }
 }
