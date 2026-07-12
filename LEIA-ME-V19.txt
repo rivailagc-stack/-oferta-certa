@@ -1,0 +1,12 @@
+OFERTA CERTA V19
+
+1. Execute setup_v19.sql no Supabase SQL Editor.
+2. Substitua os arquivos no GitHub.
+3. Faça o commit e aguarde a Vercel.
+
+Novidades:
+- contador de cliques
+- ordenação por mais clicados
+- favoritos no celular
+- compartilhar produto
+- total de cliques no admin

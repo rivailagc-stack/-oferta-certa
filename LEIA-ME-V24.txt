@@ -1,0 +1,38 @@
+OFERTA CERTA V24 — LOJA HÍBRIDA + MERCADO PAGO
+
+Esta versão aceita:
+1. Produtos afiliados: redirecionam para Shopee, Mercado Livre, Amazon etc.
+2. Produtos próprios: entram no carrinho e são pagos no Checkout Pro do Mercado Pago.
+
+PASSO 1 — SUPABASE
+Execute o arquivo setup_v24.sql no SQL Editor.
+
+PASSO 2 — GITHUB
+Substitua todos os arquivos do repositório pelos arquivos deste ZIP.
+
+PASSO 3 — VERCEL / ENVIRONMENT VARIABLES
+No projeto da Vercel, abra Settings > Environment Variables e adicione:
+
+MP_ACCESS_TOKEN = seu Access Token do Mercado Pago
+MP_WEBHOOK_SECRET = assinatura secreta dos Webhooks
+SUPABASE_URL = URL do seu projeto Supabase
+SUPABASE_SERVICE_ROLE_KEY = chave service_role do Supabase
+SITE_URL = https://oferta-certa.vercel.app
+
+Nunca coloque MP_ACCESS_TOKEN ou SUPABASE_SERVICE_ROLE_KEY em config.js ou em arquivo público.
+
+Depois das variáveis, faça um Redeploy.
+
+PASSO 4 — MERCADO PAGO
+Na sua aplicação do Mercado Pago, configure o Webhook de pagamentos:
+https://oferta-certa.vercel.app/api/mercadopago-webhook
+
+Selecione o evento Pagamentos.
+
+TESTE
+Faça primeiro compras com credenciais e contas de teste do Mercado Pago.
+Use uma janela anônima durante os testes.
+
+IMPORTANTE
+Esta é uma base funcional de Checkout Pro. Antes de vender em produção,
+confira frete, política de troca, dados da empresa, estoque e testes de pagamento.
