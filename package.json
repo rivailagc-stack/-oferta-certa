@@ -1,0 +1,9 @@
+{
+  "name": "oferta-certa-v24",
+  "version": "24.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "mercadopago": "3.2.0"
+  }
+}
