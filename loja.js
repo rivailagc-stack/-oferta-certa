@@ -166,7 +166,7 @@ function criarCardProduto(p){
       <div class="price-box">${antigo?`<span class="old-price">${antigo}</span>`:""}<strong>${precoAtual||"Confira o preço"}</strong></div>
       ${proprio
         ? `<button class="buy-button" type="button" data-add-cart-id="${esc(p.id)}" ${Number(p.stock||0)<=0?"disabled":""}>${Number(p.stock||0)>0?"Adicionar ao carrinho":"Sem estoque"}</button>`
-        : `<a class="buy-button" href="${esc(p.affiliate_link||"#")}" target="_blank" rel="noopener noreferrer sponsored" data-buy-id="${esc(p.id)}">Comprar agora</a>`
+        : `<a class="buy-button affiliate-buy-button" href="${esc(p.affiliate_link||"#")}" target="_blank" rel="noopener noreferrer sponsored" data-buy-id="${esc(p.id)}">Ver oferta no ${texto(p.marketplace||"marketplace")}</a>`
       }
     </div>
   </article>`;
@@ -183,12 +183,36 @@ function abrirProduto(id){
   modalDescricao.textContent=p.description||"Confira os detalhes deste produto.";
   modalPreco.textContent=formatarPreco(p.price)||"Confira o preço";
   modalPrecoAnterior.textContent=p.old_price?formatarPreco(p.old_price):"";
-  modalLoja.textContent=proprio?"Vendido pela Oferta Certa":(p.marketplace||"Loja online");
-  modalCliques.textContent=proprio?`${Number(p.stock||0)} em estoque`:`${Number(p.clicks||0)} cliques`;
+
+  const obsAntiga=document.getElementById("priceDisclaimer");
+  if(obsAntiga)obsAntiga.remove();
+
+  if(!proprio){
+    const obs=document.createElement("small");
+    obs.id="priceDisclaimer";
+    obs.className="price-disclaimer";
+    obs.textContent="Preço informado no cadastro. Confirme o valor atual no marketplace.";
+    modalPreco.parentElement.appendChild(obs);
+  }
+  modalLoja.textContent=proprio
+    ?"Vendido diretamente pela Oferta Certa"
+    :`Oferta disponível no ${p.marketplace||"marketplace"}`;
+
+  modalCliques.textContent=proprio
+    ?`${Number(p.stock||0)} em estoque`
+    :`${Number(p.clicks||0)} clique${Number(p.clicks||0)===1?"":"s"}`;
+
+  const avisoAntigo=document.getElementById("affiliateNotice");
+  if(avisoAntigo)avisoAntigo.remove();
 
   modalComprar.outerHTML=proprio
     ? `<button id="modalComprar" class="buy-button modal-buy-button" type="button" data-add-cart-id="${esc(p.id)}">Adicionar ao carrinho</button>`
-    : `<a id="modalComprar" class="buy-button modal-buy-button" href="${esc(p.affiliate_link||"#")}" target="_blank" rel="noopener noreferrer sponsored" data-buy-id="${esc(p.id)}">Comprar agora</a>`;
+    : `<div id="affiliateNotice" class="affiliate-notice">
+         <strong>Compra realizada no ${texto(p.marketplace||"marketplace")}</strong>
+         <span>Preço, estoque, frete e parcelamento podem mudar.</span>
+         <span>Confira as condições na página oficial antes de finalizar.</span>
+       </div>
+       <a id="modalComprar" class="buy-button modal-buy-button affiliate-buy-button" href="${esc(p.affiliate_link||"#")}" target="_blank" rel="noopener noreferrer sponsored" data-buy-id="${esc(p.id)}">Ver oferta no ${texto(p.marketplace||"marketplace")}</a>`;
 
   modalMiniaturas.innerHTML=imagens.map((url,i)=>`<button type="button" class="modal-thumbnail ${i===0?"active":""}" data-thumb-url="${esc(url)}"><img src="${esc(url)}" alt="Foto ${i+1}"></button>`).join("");
   modalMiniaturas.querySelectorAll("[data-thumb-url]").forEach(botao=>botao.addEventListener("click",()=>{
