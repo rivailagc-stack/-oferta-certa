@@ -6,6 +6,7 @@ import {
 } from "./shipping-utils.js";
 
 const MP_API = "https://api.mercadopago.com";
+const RETIRADA_SERVICE_ID = 999999;
 
 function getSiteUrl(req) {
   const forwardedHost = String(
@@ -84,13 +85,18 @@ export default async function handler(req, res) {
       ? req.body.items
       : [];
 
-    const postalCode = normalizePostalCode(
-      req.body?.shipping?.postal_code
-    );
-
     const serviceId = Number(
       req.body?.shipping?.service_id
     );
+
+    const retirada =
+      serviceId === RETIRADA_SERVICE_ID;
+
+    const postalCode = retirada
+      ? ""
+      : normalizePostalCode(
+          req.body?.shipping?.postal_code
+        );
 
     if (
       !requestedItems.length ||
@@ -101,10 +107,13 @@ export default async function handler(req, res) {
       });
     }
 
-    if (
-      postalCode.length !== 8 ||
-      !Number.isFinite(serviceId)
-    ) {
+    if (!Number.isFinite(serviceId)) {
+      return res.status(400).json({
+        error: "Escolha uma opção de entrega."
+      });
+    }
+
+    if (!retirada && postalCode.length !== 8) {
       return res.status(400).json({
         error: "Calcule e escolha o frete novamente."
       });
@@ -114,22 +123,35 @@ export default async function handler(req, res) {
       requestedItems
     );
 
-    const shippingOptions = await calculateShipping({
-      postalCode,
-      requestedItems,
-      products
-    });
+    let selectedShipping;
 
-    const selectedShipping = shippingOptions.find(
-      option =>
-        Number(option.service_id) === serviceId
-    );
-
-    if (!selectedShipping) {
-      return res.status(400).json({
-        error:
-          "A opção de frete expirou. Calcule novamente."
+    if (retirada) {
+      selectedShipping = {
+        service_id: RETIRADA_SERVICE_ID,
+        name: "Retirada no local",
+        company: "Oferta Certa",
+        price: 0,
+        delivery_time: 0,
+        pickup: true
+      };
+    } else {
+      const shippingOptions = await calculateShipping({
+        postalCode,
+        requestedItems,
+        products
       });
+
+      selectedShipping = shippingOptions.find(
+        option =>
+          Number(option.service_id) === serviceId
+      );
+
+      if (!selectedShipping) {
+        return res.status(400).json({
+          error:
+            "A opção de frete expirou. Calcule novamente."
+        });
+      }
     }
 
     const items = requestedItems.map(requested => {
@@ -194,7 +216,8 @@ export default async function handler(req, res) {
             selectedShipping.service_id,
           shipping_service_name:
             `${selectedShipping.company} — ${selectedShipping.name}`,
-          shipping_postal_code: postalCode,
+          shipping_postal_code:
+            retirada ? null : postalCode,
           shipping_delivery_time:
             selectedShipping.delivery_time,
           items: requestedItems,
@@ -225,11 +248,6 @@ export default async function handler(req, res) {
       );
     }
 
-    /*
-     * Usamos a página inicial com parâmetros.
-     * Assim não dependemos da existência de arquivos
-     * pagamento-sucesso.html, pagamento-pendente.html etc.
-     */
     const backUrls = {
       success: `${siteUrl}/?payment=success`,
       pending: `${siteUrl}/?payment=pending`,
@@ -259,19 +277,11 @@ export default async function handler(req, res) {
         order_id: String(order.id),
         shipping_service_id:
           selectedShipping.service_id,
-        shipping_postal_code: postalCode
+        shipping_postal_code:
+          retirada ? "" : postalCode,
+        pickup: retirada
       }
     };
-
-    console.log(
-      "SITE URL:",
-      siteUrl
-    );
-
-    console.log(
-      "BACK URLS:",
-      JSON.stringify(backUrls, null, 2)
-    );
 
     const preferenceResponse = await fetch(
       `${MP_API}/checkout/preferences`,
@@ -306,11 +316,6 @@ export default async function handler(req, res) {
         "O Mercado Pago devolveu uma resposta inválida."
       );
     }
-
-    console.log(
-      "RESPOSTA MERCADO PAGO:",
-      JSON.stringify(preference, null, 2)
-    );
 
     if (!preferenceResponse.ok) {
       throw new Error(
