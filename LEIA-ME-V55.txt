@@ -1,0 +1,66 @@
+OFERTA CERTA V55 — CHECKOUT DENTRO DO SITE + LINKS POR CATEGORIA
+
+ANTES DE TROCAR
+1. Mantenha todos os arquivos do Melhor Envio que já estão funcionando.
+2. NÃO substitua api/shipping-utils.js.
+3. O arquivo antigo api/create-preference.js pode continuar no projeto; a V55 não usa mais essa rota para produtos próprios.
+
+SUBSTITUA NO GITHUB
+- index.html
+- loja.js
+- style.css
+- admin.html
+- admin.js
+- smart-admin.js
+- payment-status.js
+- package.json
+- api/mercadopago-webhook.js
+
+ADICIONE NO GITHUB
+- checkout.js
+- category-links.js
+- share-center.js
+- api/create-checkout.js
+- api/process-payment.js
+- api/checkout-status.js
+- setup_v55.sql
+
+SUPABASE
+1. Abra SQL Editor.
+2. Cole e execute setup_v55.sql uma vez.
+3. Aguarde aparecer Success.
+
+VERCEL
+Adicione em Settings > Environment Variables:
+MP_PUBLIC_KEY = sua Public Key do mesmo ambiente do Access Token
+
+Para teste, use Public Key e Access Token de TESTE.
+Para venda real, use os dois de PRODUÇÃO. Não misture teste com produção.
+
+Já devem continuar cadastradas:
+- MP_ACCESS_TOKEN
+- SITE_URL
+- SUPABASE_URL
+- SUPABASE_SERVICE_ROLE_KEY
+- MP_WEBHOOK_SECRET, quando já configurado
+- variáveis do Melhor Envio
+
+Depois faça Redeploy.
+
+O QUE MUDA
+- Pix e cartão aparecem dentro da Oferta Certa usando Payment Brick.
+- Produtos próprios não são redirecionados para o Checkout Pro.
+- Retirada no local continua grátis.
+- Entrega exige nome, CPF, telefone e endereço completo.
+- Pagamento aprovado reduz o estoque uma única vez, mesmo com repetição do webhook.
+- Links direcionados por categoria:
+  /?categoria=Ferramentas
+  /?categoria=Artesanato
+- Produto individual continua usando:
+  /?produto=ID_DO_PRODUTO
+- Admin ganha Central de Divulgação para loja completa e categorias.
+- Botão TikTok/Instagram abre o compartilhamento do celular; quando o navegador não permite, copia o texto e o link.
+- Botões de melhorar título, descrição e fotos da V54 continuam incluídos.
+
+TESTE PRIMEIRO COM CREDENCIAIS DE TESTE.
+Nunca coloque MP_ACCESS_TOKEN no HTML, no config.js nem em prints.
