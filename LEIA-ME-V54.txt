@@ -1,0 +1,31 @@
+OFERTA CERTA V54 — RETIRADA + ASSISTENTE CORRIGIDO
+
+ALTERAÇÕES
+- Adiciona “Retirada no local — Grátis” no carrinho.
+- Retirada não exige CEP e não chama o Melhor Envio.
+- Mercado Pago cobra somente os produtos quando retirada é selecionada.
+- Corrige os botões:
+  • Melhorar título e descrição
+  • Melhorar fotos
+- Fotos ficam quadradas, com fundo branco, iluminação e contraste ajustados.
+- O assistente também melhora categoria e descrição.
+
+NO GITHUB
+
+Substitua:
+- loja.js
+- admin.js
+- smart-admin.js
+- api/create-preference.js
+
+Não precisa executar SQL novo.
+Não substitua shipping-utils.js.
+Não altere Mercado Pago nem Melhor Envio.
+
+TESTE
+1. Abra a loja e adicione produto próprio.
+2. Abra o carrinho.
+3. Selecione “Retirada no local — Grátis”.
+4. Toque em Pagar com Mercado Pago.
+5. No Admin, digite um título e toque em “Melhorar título e descrição”.
+6. Escolha uma foto e toque em “Melhorar fotos”.
