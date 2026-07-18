@@ -3,11 +3,12 @@ import { supabaseHeaders } from "./shipping-utils.js";
 
 const TOKEN_NAME = "melhor_envio";
 
-function getBaseUrl() {
-  return String(
-    process.env.MELHOR_ENVIO_API_URL ||
-    "https://www.melhorenvio.com.br"
-  ).replace(/\/$/, "");
+function getAuthorizeUrl() {
+  return "https://www.melhorenvio.com.br/oauth/authorize";
+}
+
+function getTokenUrl() {
+  return "https://api.melhorenvio.com/oauth/token";
 }
 
 function getRedirectUri() {
@@ -35,12 +36,13 @@ export function buildAuthorizeUrl(state) {
     "orders-read"
   ].join(" ");
 
-  const url = new URL(`${getBaseUrl()}/oauth/authorize`);
+  const url = new URL(getAuthorizeUrl());
+
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("redirect_uri", getRedirectUri());
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("state", state);
   url.searchParams.set("scope", scopes);
+  url.searchParams.set("state", state);
 
   return url.toString();
 }
@@ -65,11 +67,12 @@ async function refreshAccessToken(refreshToken) {
 }
 
 async function requestToken(payload) {
+
   if (!payload.client_id || !payload.client_secret) {
     throw new Error("Client ID ou Client Secret não configurado.");
   }
 
-  const response = await fetch(`${getBaseUrl()}/oauth/token`, {
+  const response = await fetch(getTokenUrl(), {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -82,10 +85,10 @@ async function requestToken(payload) {
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
       data.error_description ||
+      data.message ||
       data.error ||
-      "Não foi possível gerar o token do Melhor Envio."
+      "Erro ao gerar token do Melhor Envio."
     );
   }
 
@@ -93,8 +96,12 @@ async function requestToken(payload) {
 }
 
 export async function saveToken(tokenData) {
+
   const expiresIn = Number(tokenData.expires_in || 2592000);
-  const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+
+  const expiresAt = new Date(
+    Date.now() + expiresIn * 1000
+  ).toISOString();
 
   const response = await fetch(
     `${process.env.SUPABASE_URL}/rest/v1/integration_tokens?on_conflict=provider`,
@@ -107,7 +114,7 @@ export async function saveToken(tokenData) {
       body: JSON.stringify({
         provider: TOKEN_NAME,
         access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token || null,
+        refresh_token: tokenData.refresh_token,
         token_type: tokenData.token_type || "Bearer",
         expires_at: expiresAt,
         updated_at: new Date().toISOString()
@@ -116,49 +123,52 @@ export async function saveToken(tokenData) {
   );
 
   if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Não foi possível salvar o token: ${detail}`);
+    throw new Error(await response.text());
   }
 }
 
 async function getSavedToken() {
+
   const response = await fetch(
     `${process.env.SUPABASE_URL}/rest/v1/integration_tokens?provider=eq.${TOKEN_NAME}&select=*&limit=1`,
-    { headers: supabaseHeaders() }
+    {
+      headers: supabaseHeaders()
+    }
   );
 
   if (!response.ok) {
-    throw new Error("Não foi possível consultar o token do Melhor Envio.");
+    throw new Error("Não foi possível consultar token.");
   }
 
   const rows = await response.json();
+
   return rows[0] || null;
 }
 
 export async function getValidAccessToken() {
-  const envToken = process.env.MELHOR_ENVIO_TOKEN;
-  if (envToken) return envToken;
+
+  if (process.env.MELHOR_ENVIO_TOKEN) {
+    return process.env.MELHOR_ENVIO_TOKEN;
+  }
 
   const saved = await getSavedToken();
 
-  if (!saved?.access_token) {
-    throw new Error(
-      "Melhor Envio ainda não conectado. Abra /api/melhor-envio-autorizar."
-    );
+  if (!saved) {
+    throw new Error("Melhor Envio não autorizado.");
   }
 
-  const expiresAt = new Date(saved.expires_at || 0).getTime();
-  const renewBefore = Date.now() + 24 * 60 * 60 * 1000;
+  const expires =
+    new Date(saved.expires_at).getTime();
 
-  if (expiresAt > renewBefore) {
+  if (expires > Date.now() + 86400000) {
     return saved.access_token;
   }
 
-  if (!saved.refresh_token) {
-    throw new Error("Token vencido e sem refresh token. Autorize novamente.");
-  }
+  const renewed = await refreshAccessToken(
+    saved.refresh_token
+  );
 
-  const renewed = await refreshAccessToken(saved.refresh_token);
   await saveToken(renewed);
+
   return renewed.access_token;
 }
