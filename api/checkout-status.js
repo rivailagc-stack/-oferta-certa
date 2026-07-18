@@ -1,21 +1,38 @@
-export default function handler(req, res) {
-  if (req.method !== "GET") {
+import {
+  normalizePostalCode,
+  getOwnProducts,
+  calculateShipping
+} from "./shipping-utils.js";
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
     return res.status(405).json({ error: "Método não permitido." });
   }
 
-  const status = {
-    mp_access_token: Boolean(process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN),
-    supabase_url: Boolean(process.env.SUPABASE_URL),
-    supabase_service_key: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-    site_url: Boolean(process.env.SITE_URL),
-    webhook_secret: Boolean(process.env.MP_WEBHOOK_SECRET)
-  };
+  try {
+    const postalCode = normalizePostalCode(req.body?.postal_code);
+    const requestedItems = Array.isArray(req.body?.items) ? req.body.items : [];
 
-  status.ready =
-    status.mp_access_token &&
-    status.supabase_url &&
-    status.supabase_service_key &&
-    status.site_url;
+    if (postalCode.length !== 8) {
+      return res.status(400).json({ error: "CEP inválido." });
+    }
 
-  return res.status(200).json(status);
+    if (!requestedItems.length || requestedItems.length > 30) {
+      return res.status(400).json({ error: "Carrinho inválido." });
+    }
+
+    const products = await getOwnProducts(requestedItems);
+    const options = await calculateShipping({
+      postalCode,
+      requestedItems,
+      products
+    });
+
+    return res.status(200).json({ options });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({
+      error: error.message || "Erro ao calcular frete."
+    });
+  }
 }
