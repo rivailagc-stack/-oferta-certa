@@ -245,7 +245,7 @@ export async function calculateShipping({
   );
 
   const response = await fetch(
-    "https://api.melhorenvio.com/api/v2/me/shipment/calculate",
+    "https://www.melhorenvio.com.br/api/v2/me/shipment/calculate",
     {
       method: "POST",
       headers: {
