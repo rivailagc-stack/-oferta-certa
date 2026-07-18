@@ -20,16 +20,20 @@ export default async function handler(req, res) {
 
     if (!dataId) return res.status(200).end();
 
-    WebhookSignatureValidator.validate({
-      xSignature: req.headers["x-signature"],
-      xRequestId: req.headers["x-request-id"],
-      dataId: String(dataId),
-      secret: process.env.MP_WEBHOOK_SECRET
-    });
+    const webhookSecret = process.env.MP_WEBHOOK_SECRET;
+
+    if (webhookSecret) {
+      WebhookSignatureValidator.validate({
+        xSignature: req.headers["x-signature"],
+        xRequestId: req.headers["x-request-id"],
+        dataId: String(dataId),
+        secret: webhookSecret
+      });
+    }
 
     const paymentResponse = await fetch(
       `https://api.mercadopago.com/v1/payments/${encodeURIComponent(dataId)}`,
-      { headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` } }
+      { headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN}` } }
     );
 
     if (!paymentResponse.ok) throw new Error("Não foi possível consultar o pagamento.");
