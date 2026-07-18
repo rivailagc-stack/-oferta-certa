@@ -13,8 +13,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const accessToken = process.env.MP_ACCESS_TOKEN;
-    const siteUrl = (process.env.SITE_URL || "https://oferta-certa.vercel.app").replace(/\/$/, "");
+    const accessToken = process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN;
+    const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "";
+    const siteUrl = (
+      process.env.SITE_URL ||
+      vercelUrl ||
+      "https://oferta-certa.vercel.app"
+    ).replace(/\/$/, "");
 
     if (!accessToken || !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       return res.status(500).json({ error: "Credenciais do pagamento não configuradas." });
