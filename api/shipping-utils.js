@@ -1,3 +1,5 @@
+import { getValidAccessToken } from "./melhor-envio-oauth-utils.js";
+
 export function supabaseHeaders() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!process.env.SUPABASE_URL || !key) {
@@ -100,8 +102,7 @@ export async function calculateShipping({ postalCode, requestedItems, products }
 
   const origin = normalizePostalCode(process.env.SHIPPING_ORIGIN_ZIP);
   if (origin.length !== 8) throw new Error("CEP de origem não configurado na Vercel.");
-  const token = process.env.MELHOR_ENVIO_TOKEN;
-  if (!token) throw new Error("Token do Melhor Envio não configurado.");
+  const token = await getValidAccessToken();
 
   const baseUrl = (process.env.MELHOR_ENVIO_API_URL || "https://www.melhorenvio.com.br").replace(/\/$/, "");
   const userAgent = process.env.MELHOR_ENVIO_USER_AGENT || "Oferta Certa (contato@ofertacerta.com.br)";
