@@ -1,0 +1,29 @@
+OFERTA CERTA V31 — GOOGLE PLANILHAS / EXCEL
+
+MELHORIAS
+- Painel mais simples.
+- Modelo .xlsx pronto para abrir gratuitamente no Google Planilhas.
+- Aceita arquivos .xlsx, .xls e .csv.
+- Prévia antes de importar.
+- Atualiza produtos quando o link afiliado já existe.
+
+COMO USAR
+1. Toque em Baixar modelo para Google Planilhas.
+2. Abra o arquivo no aplicativo Google Planilhas.
+3. Preencha os produtos.
+4. No Google Planilhas, faça download como Microsoft Excel (.xlsx).
+5. Volte ao Admin e toque em Escolher planilha preenchida.
+
+ATUALIZAÇÃO NO GITHUB
+Substitua:
+- admin.html
+- style.css
+
+Adicione:
+- xlsx-import.js
+- Modelo_Oferta_Certa_Google_Planilhas.xlsx
+
+Pode apagar:
+- csv-import.js
+
+Não precisa executar SQL novo.

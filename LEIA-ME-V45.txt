@@ -1,0 +1,63 @@
+OFERTA CERTA V45 — CHECKOUT PRO PRONTO
+
+O QUE FOI CORRIGIDO
+- Aceita MP_ACCESS_TOKEN ou MERCADOPAGO_ACCESS_TOKEN.
+- SITE_URL pode ser preenchida ou detectada pela Vercel.
+- Checkout Pro abre Pix, cartão e boleto.
+- Frete pode começar grátis, fixo ou usar Melhor Envio.
+- Webhook funciona mesmo antes de configurar a assinatura secreta.
+- Produtos afiliados continuam levando para o marketplace.
+- Produtos próprios usam carrinho e Mercado Pago.
+
+NO GITHUB
+
+Substitua:
+- api/create-preference.js
+- api/shipping-utils.js
+- api/mercadopago-webhook.js
+- api/checkout-status.js
+- payment-status.js
+
+Não precisa substituir o site inteiro.
+Não precisa executar SQL novo.
+
+VARIÁVEIS OBRIGATÓRIAS NA VERCEL
+
+1. MP_ACCESS_TOKEN
+   ou mantenha MERCADOPAGO_ACCESS_TOKEN, pois a V45 aceita os dois nomes.
+
+2. SUPABASE_URL
+   Valor:
+   https://qodtxydbzqmymsuvamza.supabase.co
+
+3. SUPABASE_SERVICE_ROLE_KEY
+   Copie no Supabase em:
+   Project Settings > API Keys > service_role / secret key
+
+VARIÁVEIS RECOMENDADAS
+
+4. SITE_URL
+   https://oferta-certa.vercel.app
+
+5. SHIPPING_MODE
+   Para começar sem complicação:
+   free
+
+OUTRAS OPÇÕES DE FRETE
+
+Frete fixo:
+- SHIPPING_MODE = fixed
+- DEFAULT_SHIPPING_PRICE = 15.90
+- DEFAULT_DELIVERY_DAYS = 7
+
+Melhor Envio:
+- SHIPPING_MODE = melhor_envio
+- SHIPPING_ORIGIN_ZIP
+- MELHOR_ENVIO_TOKEN
+- MELHOR_ENVIO_USER_AGENT
+
+DEPOIS
+Faça Redeploy na Vercel.
+Cadastre um produto como “Produto próprio”.
+Preencha preço, estoque, peso e dimensões.
+Adicione ao carrinho, informe o CEP e toque em “Pagar com Mercado Pago”.

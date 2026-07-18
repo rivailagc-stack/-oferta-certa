@@ -1,0 +1,7 @@
+OFERTA CERTA V27
+
+Substitua somente:
+- loja.js
+- style.css
+
+Não precisa executar SQL novo.

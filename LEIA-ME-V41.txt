@@ -1,0 +1,33 @@
+OFERTA CERTA V41 — CADASTRO RÁPIDO ASSISTIDO
+
+O QUE MUDOU
+- Removido o importador automático do Mercado Livre, pois estava bloqueado.
+- Novo cadastro rápido:
+  título
+  preço
+  marketplace
+  link afiliado
+  links das fotos reais
+- Sugestão automática de categoria.
+- Geração automática de descrição curta.
+- Mantém Google Planilhas/Excel.
+
+IMPORTANTE
+As fotos precisam ser reais do produto. A V41 aceita até 5 links públicos de imagem.
+
+PUBLICAÇÃO
+Substitua todos os arquivos pela V41 ou, no mínimo:
+
+Substitua:
+- admin.html
+- style.css
+- sw.js
+
+Adicione:
+- quick-fill.js
+
+Apague:
+- mercadolivre-import.js
+- api/importar-mercadolivre.js
+
+Não precisa executar SQL novo.

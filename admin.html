@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>Admin | Oferta Certa</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <div class="container header-content">
+      <div class="brand admin-brand">
+        <span class="brand-icon">🛠️</span>
+        <span>
+          <strong>Admin Oferta Certa</strong>
+          <small>Produtos salvos no Supabase</small>
+        </span>
+      </div>
+      <a class="store-link" href="index.html">Ver loja</a>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span>Total</span>
+        <strong id="totalProdutos">0</strong>
+      </article>
+      <article class="stat-card">
+        <span>Destaques</span>
+        <strong id="totalDestaques">0</strong>
+      </article>
+      <article class="stat-card">
+        <span>Categorias</span>
+        <strong id="totalCategorias">0</strong>
+      </article>
+      <article class="stat-card">
+        <span>Cliques</span>
+        <strong id="totalCliques">0</strong>
+      </article>
+    </section>
+
+    
+    
+    
+    <section class="panel quick-create-panel">
+      <div class="panel-title">
+        <div>
+          <p class="eyebrow">CADASTRO RÁPIDO</p>
+          <h2>Preencher produto em poucos segundos</h2>
+        </div>
+      </div>
+
+      <p class="quick-create-description">
+        Informe os dados principais. O sistema sugere categoria e descrição.
+        As fotos precisam ser reais do produto.
+      </p>
+
+      <div class="quick-create-grid">
+        <label class="field field-full">
+          <span>Título do produto *</span>
+          <input id="quickTitle" maxlength="160" placeholder="Ex.: Kit 10 potes de vidro herméticos 370 ml">
+        </label>
+
+        <label class="field">
+          <span>Preço</span>
+          <input id="quickPrice" inputmode="decimal" placeholder="129,90">
+        </label>
+
+        <label class="field">
+          <span>Loja</span>
+          <select id="quickMarketplace">
+            <option>Mercado Livre</option>
+            <option>Shopee</option>
+            <option>Amazon</option>
+            <option>TikTok Shop</option>
+            <option>Outro</option>
+          </select>
+        </label>
+
+        <label class="field field-full">
+          <span>Link afiliado *</span>
+          <input id="quickAffiliateLink" type="url" placeholder="https://meli.la/...">
+        </label>
+
+        <label class="field field-full">
+          <span>Links das fotos reais (um por linha, até 5)</span>
+          <textarea id="quickImages" rows="5" placeholder="https://.../foto1.jpg&#10;https://.../foto2.jpg"></textarea>
+        </label>
+      </div>
+
+      <button id="quickFillButton" class="button button-primary button-full" type="button">
+        Preencher formulário automaticamente
+      </button>
+
+      <div id="quickFillMessage" class="message hidden"></div>
+    </section>
+
+<section class="panel sheet-import-panel">
+      <div class="panel-title">
+        <div>
+          <p class="eyebrow">CADASTRO EM MASSA</p>
+          <h2>Importar planilha</h2>
+        </div>
+      </div>
+
+      <div class="sheet-import-simple">
+        <p class="sheet-import-description">
+          Use o modelo gratuito no Google Planilhas, preencha os produtos e envie o arquivo aqui.
+        </p>
+
+        <a class="button button-light button-full"
+           href="Modelo_Oferta_Certa_Google_Planilhas.xlsx"
+           download>
+          ⬇️ Baixar modelo para Google Planilhas
+        </a>
+
+        <label class="button button-primary button-full sheet-file-button" for="sheetFile">
+          📄 Escolher planilha preenchida
+        </label>
+
+        <input id="sheetFile" type="file" accept=".xlsx,.xls,.csv" hidden>
+
+        <small class="sheet-import-help">
+          No Google Planilhas: Arquivo → Fazer download → Microsoft Excel (.xlsx).
+        </small>
+      </div>
+
+      <div id="sheetPreviewBox" class="sheet-preview-box hidden">
+        <div class="sheet-preview-header">
+          <strong id="sheetPreviewTitle">Prévia da importação</strong>
+          <button id="cancelarPlanilha" class="button button-light" type="button">Cancelar</button>
+        </div>
+
+        <div id="sheetPreviewTable" class="sheet-preview-table"></div>
+
+        <button id="importarPlanilha" class="button button-primary button-full" type="button">
+          Importar produtos
+        </button>
+      </div>
+
+      <div id="sheetMensagem" class="message hidden"></div>
+    </section>
+
+    
+    <section class="panel payment-status-panel">
+      <div class="panel-title">
+        <div>
+          <p class="eyebrow">PAGAMENTOS</p>
+          <h2>Mercado Pago</h2>
+        </div>
+        <span id="paymentStatusBadge" class="payment-status-badge">Verificando...</span>
+      </div>
+
+      <p id="paymentStatusText" class="payment-status-text">
+        Verificando a configuração segura do checkout.
+      </p>
+
+      <div class="payment-status-checks">
+        <span id="checkMpToken">○ Access Token</span>
+        <span id="checkSupabaseSecret">○ Chave segura do Supabase</span>
+        <span id="checkSiteUrl">○ Endereço da loja</span>
+      </div>
+
+      <small>
+        Produtos próprios usam o carrinho e abrem o Checkout Pro do Mercado Pago.
+        Produtos afiliados continuam levando para o marketplace.
+      </small>
+    </section>
+
+
+    <section class="admin-grid">
+      <article class="panel">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">CADASTRO</p>
+            <h1 id="tituloFormulario">Adicionar produto</h1>
+          </div>
+          <button id="cancelarEdicao" class="button button-light hidden" type="button">Cancelar edição</button>
+        </div>
+
+        <div id="shareImportBox" class="share-import-box hidden">
+          <strong>🔗 Link recebido pelo compartilhamento</strong>
+          <p id="shareImportText"></p>
+          <button id="usarLinkCompartilhado" class="button button-primary" type="button">
+            Usar este link
+          </button>
+          <button id="fecharLinkCompartilhado" class="button button-light" type="button">
+            Fechar
+          </button>
+        </div>
+
+        <form id="produtoForm">
+          <input id="produtoId" type="hidden">
+
+          <div class="form-grid">
+            <label class="field field-full">
+              <span>Nome do produto *</span>
+              <input id="title" required maxlength="160" placeholder="Ex.: Jogo de soquetes 61 peças">
+            </label>
+
+            <label class="field">
+              <span>Preço atual</span>
+              <input id="price" inputmode="decimal" placeholder="129,90">
+            </label>
+
+            <label class="field">
+              <span>Preço anterior</span>
+              <input id="old_price" inputmode="decimal" placeholder="169,90">
+            </label>
+
+            <label class="field">
+              <span>Categoria *</span>
+              <select id="category" required>
+                <option value="">Selecione uma categoria</option>
+                <option>Casa e Cozinha</option><option>Ferramentas</option>
+                <option>Eletrônicos</option><option>Informática</option>
+                <option>Games</option><option>Moda</option>
+                <option>Calçados</option><option>Beleza</option>
+                <option>Saúde</option><option>Brinquedos</option>
+                <option>Bebê</option><option>Pet Shop</option>
+                <option>Automotivo</option><option>Esporte e Fitness</option>
+                <option>Jardim</option><option>Livros</option>
+                <option>Utilidades Domésticas</option><option>Artesanato</option>
+                <option>Iluminação</option><option>Promoções</option>
+                <option>Outros</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Tipo de produto *</span>
+              <select id="product_type" required>
+                <option value="affiliate">Produto afiliado</option>
+                <option value="own">Produto próprio</option>
+              </select>
+            </label>
+
+            <label class="field" id="marketplaceField">
+              <span>Loja afiliada</span>
+              <select id="marketplace">
+                <option value="Mercado Livre">Mercado Livre</option>
+                <option value="Shopee">Shopee</option>
+                <option value="Amazon">Amazon</option>
+                <option value="TikTok Shop">TikTok Shop</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </label>
+
+            <label class="field own-product-field hidden">
+              <span>Estoque *</span>
+              <input id="stock" type="number" min="0" step="1" value="0" inputmode="numeric">
+            </label>
+
+            <label class="field own-product-field hidden">
+              <span>Peso com embalagem (kg) *</span>
+              <input id="package_weight" inputmode="decimal" placeholder="1,00">
+            </label>
+
+            <label class="field own-product-field hidden">
+              <span>Comprimento (cm) *</span>
+              <input id="package_length" type="number" min="1" step="1" placeholder="20">
+            </label>
+
+            <label class="field own-product-field hidden">
+              <span>Largura (cm) *</span>
+              <input id="package_width" type="number" min="1" step="1" placeholder="15">
+            </label>
+
+            <label class="field own-product-field hidden">
+              <span>Altura (cm) *</span>
+              <input id="package_height" type="number" min="1" step="1" placeholder="10">
+            </label>
+
+            <div class="field field-full">
+              <span>Fotos do produto * (até 5)</span>
+              <label class="upload-box" for="image_files">
+                <input id="image_files" type="file" accept="image/*" multiple>
+                <span class="upload-icon">📷</span>
+                <strong>Escolher fotos</strong>
+                <small>Selecione de 1 a 5 imagens</small>
+              </label>
+              <div id="imagesPreview" class="images-preview"></div>
+              <p class="field-help">A primeira foto será a capa.</p>
+            </div>
+
+            <label id="affiliateLinkField" class="field field-full">
+              <span>Link direto/afiliado do produto *</span>
+              <input id="affiliate_link" type="url" placeholder="https://meli.la/...">
+            </label>
+
+            <label class="field field-full">
+              <span>Descrição</span>
+              <textarea id="description" rows="5" maxlength="1200" placeholder="Descrição profissional do produto"></textarea>
+            </label>
+
+            <div class="field field-full smart-tools">
+              <span>Assistente inteligente</span>
+              <div class="smart-actions">
+                <button id="melhorarCadastro" class="button button-light" type="button">✨ Melhorar título e descrição</button>
+                <button id="melhorarFotos" class="button button-light" type="button">📷 Melhorar fotos</button>
+              </div>
+              <small>Melhora o texto e prepara as fotos com iluminação, corte quadrado e fundo claro. Confira antes de salvar.</small>
+            </div>
+
+            <label class="field field-full own-product-field hidden">
+              <span>Cores disponíveis</span>
+              <input id="colors" maxlength="500" placeholder="Ex.: Cru, Branco, Vermelho, Azul-marinho">
+              <small>Separe as cores por vírgula. O cliente escolherá antes de comprar.</small>
+            </label>
+
+            <label class="field field-full own-product-field hidden">
+              <span>Tamanhos ou variações</span>
+              <input id="sizes" maxlength="500" placeholder="Ex.: 200 g, 400 g, 1 kg">
+              <small>Separe por vírgula. Deixe vazio quando não houver variação.</small>
+            </label>
+
+            <label class="check-field">
+              <input id="featured" type="checkbox">
+              <span>Mostrar como destaque</span>
+            </label>
+
+            <label class="check-field">
+              <input id="flash_sale" type="checkbox">
+              <span>Mostrar em oferta relâmpago</span>
+            </label>
+
+            <label class="field flash-sale-field hidden">
+              <span>Fim da oferta (opcional)</span>
+              <input id="flash_sale_end_at" type="datetime-local">
+            </label>
+
+            <label class="check-field">
+              <input id="active" type="checkbox" checked>
+              <span>Produto ativo na loja</span>
+            </label>
+          </div>
+
+          <div id="formMensagem" class="message hidden"></div>
+
+          <button id="salvarProduto" class="button button-primary button-full" type="submit">
+            Salvar produto
+          </button>
+        </form>
+      </article>
+
+      <article class="panel">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">GERENCIAMENTO</p>
+            <h2>Produtos cadastrados</h2>
+          </div>
+          <button id="atualizarLista" class="button button-light" type="button">Atualizar</button>
+        </div>
+
+        <input id="buscaAdmin" class="admin-search" type="search" placeholder="Buscar produto cadastrado...">
+        <div id="listaProdutosAdmin" class="admin-products"></div>
+      </article>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+  <script src="smart-admin.js"></script>
+  <script src="pwa.js"></script>
+  <script src="share-import.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="xlsx-import.js"></script>
+  <script src="quick-fill.js"></script>
+  <script src="payment-status.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+OFERTA CERTA V33 — IMPORTADOR HÍBRIDO
+
+O sistema agora tenta:
+1. Ler título, preço, descrição e fotos diretamente da página pública.
+2. Se não conseguir, tenta a API oficial usando o código MLB.
+
+ATUALIZAÇÃO NO GITHUB
+Substitua:
+- admin.html
+- mercadolivre-import.js
+- sw.js
+- api/importar-mercadolivre.js
+
+Não precisa executar SQL novo.
+
+IMPORTANTE
+- Use o link público completo do produto.
+- Não use meli.la para importar.
+- O link meli.la continua sendo colocado no campo Link afiliado.
+- Alguns anúncios ainda podem bloquear a leitura automática.

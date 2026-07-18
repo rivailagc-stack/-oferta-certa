@@ -1,0 +1,1 @@
+Substitua index.html, style.css e sw.js. Adicione trust.js e quem-somos.html.

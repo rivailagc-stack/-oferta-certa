@@ -1,0 +1,39 @@
+OFERTA CERTA V44 — MERCADO PAGO + OFERTAS CORRIGIDAS
+
+1. SUPABASE
+Execute setup_v44.sql.
+
+2. GITHUB
+Substitua:
+- admin.html
+- admin.js
+- loja.js
+- promo.js
+- style.css
+- sw.js
+
+Adicione:
+- payment-status.js
+- api/checkout-status.js
+
+Os arquivos do Mercado Pago já existentes devem continuar:
+- api/create-preference.js
+- api/mercadopago-webhook.js
+- api/shipping-utils.js
+- api/calculate-shipping.js
+
+3. VERCEL
+Para o Mercado Pago funcionar, configure:
+- MP_ACCESS_TOKEN
+- MP_WEBHOOK_SECRET
+- SUPABASE_URL
+- SUPABASE_SERVICE_ROLE_KEY
+- SITE_URL
+
+As chaves secretas ficam apenas na Vercel, nunca no config.js.
+
+4. PRODUTOS
+- Produto afiliado: botão leva ao marketplace.
+- Produto próprio: botão adiciona ao carrinho.
+- No carrinho: cliente calcula frete e paga pelo Mercado Pago.
+- Marque “Mostrar em oferta relâmpago” para escolher os produtos da seção.

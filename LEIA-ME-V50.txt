@@ -1,0 +1,12 @@
+OFERTA CERTA V50
+
+1. No Supabase > SQL Editor, execute setup_v50.sql uma única vez.
+2. Envie todos os arquivos desta pasta para o mesmo projeto no GitHub/Vercel.
+3. Mantenha na Vercel: MP_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY e SITE_URL.
+4. No Admin, selecione “Produto próprio”, informe estoque, embalagem e cores separadas por vírgula.
+5. O botão “Melhorar título e descrição” funciona localmente e não exige chave paga.
+6. “Melhorar fotos” clareia, centraliza e cria imagem quadrada com fundo branco.
+7. As ofertas relâmpago aparecem antes dos demais produtos.
+8. O botão Divulgar abre o compartilhamento do celular ou copia texto e link.
+
+IMPORTANTE: não coloque o token do Mercado Pago dentro de config.js.

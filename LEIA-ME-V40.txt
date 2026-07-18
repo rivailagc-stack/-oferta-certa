@@ -1,0 +1,21 @@
+OFERTA CERTA V40 — PACOTE COMPLETO E CONSOLIDADO
+
+INCLUI
+- Importador híbrido do Mercado Livre.
+- Google Planilhas / Excel.
+- PWA instalável.
+- Tutorial de instalação corrigido.
+- Modal do produto corrigido no celular.
+- Carrinho e anúncios com carregamento corrigido.
+- Cache atualizado para evitar versão antiga.
+
+COMO PUBLICAR
+1. Extraia o ZIP.
+2. No GitHub, envie TODOS os arquivos da V40.
+3. Marque para substituir os arquivos existentes.
+4. Faça um único commit:
+   Oferta Certa V40 completa
+5. Aguarde a Vercel publicar.
+6. Feche a aba antiga e abra o site novamente.
+
+NÃO precisa executar SQL novo.

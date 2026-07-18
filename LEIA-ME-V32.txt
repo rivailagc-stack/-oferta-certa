@@ -1,0 +1,26 @@
+OFERTA CERTA V32 — IMPORTAÇÃO MERCADO LIVRE
+
+COMO FUNCIONA
+1. Cole o código MLB ou o link público normal do produto.
+2. Toque em Buscar produto.
+3. O sistema tenta consultar a API oficial do Mercado Livre.
+4. Título, preço, descrição, categoria e até 5 fotos preenchem o formulário.
+5. Cole separadamente seu link afiliado meli.la.
+6. Confira os dados e salve.
+
+ATUALIZAÇÃO NO GITHUB
+Substitua:
+- admin.html
+- style.css
+
+Adicione:
+- mercadolivre-import.js
+- api/importar-mercadolivre.js
+
+Não precisa executar SQL novo.
+
+IMPORTANTE
+- Links encurtados meli.la são para comissão, não para importar.
+- Alguns anúncios podem exigir autorização oficial.
+- Se aparecer mensagem de autorização, configure ML_ACCESS_TOKEN na Vercel
+  depois de criar uma aplicação no Mercado Livre Developers.
