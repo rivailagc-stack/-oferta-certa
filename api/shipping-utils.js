@@ -57,42 +57,97 @@ export function buildShippingProducts(requestedItems, products) {
   });
 }
 
-export async function calculateShipping({ postalCode, requestedItems, products }) {
-  const origin = normalizePostalCode(process.env.SHIPPING_ORIGIN_ZIP);
+export async function calculateShipping({
+  postalCode,
+  requestedItems,
+  products
+}) {
   const destination = normalizePostalCode(postalCode);
 
-  if (origin.length !== 8) throw new Error("CEP de origem não configurado na Vercel.");
-  if (destination.length !== 8) throw new Error("CEP de destino inválido.");
+  if (destination.length !== 8) {
+    throw new Error("CEP de destino inválido.");
+  }
+
+  const mode = String(process.env.SHIPPING_MODE || "free").toLowerCase();
+
+  if (mode === "free") {
+    return [{
+      service_id: 1,
+      name: "Frete grátis",
+      company: "Oferta Certa",
+      price: 0,
+      delivery_time: Number(process.env.DEFAULT_DELIVERY_DAYS || 7),
+      postal_code: destination
+    }];
+  }
+
+  if (mode === "fixed") {
+    const price = Number(process.env.DEFAULT_SHIPPING_PRICE || 0);
+
+    if (!Number.isFinite(price) || price < 0) {
+      throw new Error("Valor do frete fixo inválido.");
+    }
+
+    return [{
+      service_id: 2,
+      name: "Entrega padrão",
+      company: "Oferta Certa",
+      price,
+      delivery_time: Number(process.env.DEFAULT_DELIVERY_DAYS || 7),
+      postal_code: destination
+    }];
+  }
+
+  const origin = normalizePostalCode(process.env.SHIPPING_ORIGIN_ZIP);
+
+  if (origin.length !== 8) {
+    throw new Error("CEP de origem não configurado na Vercel.");
+  }
 
   const token = process.env.MELHOR_ENVIO_TOKEN;
-  if (!token) throw new Error("Token do Melhor Envio não configurado.");
 
-  const baseUrl = (process.env.MELHOR_ENVIO_API_URL || "https://www.melhorenvio.com.br").replace(/\/$/, "");
-  const userAgent = process.env.MELHOR_ENVIO_USER_AGENT || "Oferta Certa (contato@ofertacerta.com.br)";
+  if (!token) {
+    throw new Error("Token do Melhor Envio não configurado.");
+  }
 
-  const response = await fetch(`${baseUrl}/api/v2/me/shipment/calculate`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      "User-Agent": userAgent
-    },
-    body: JSON.stringify({
-      from: { postal_code: origin },
-      to: { postal_code: destination },
-      products: buildShippingProducts(requestedItems, products),
-      options: {
-        receipt: false,
-        own_hand: false
-      }
-    })
-  });
+  const baseUrl = (
+    process.env.MELHOR_ENVIO_API_URL ||
+    "https://www.melhorenvio.com.br"
+  ).replace(/\/$/, "");
+
+  const userAgent =
+    process.env.MELHOR_ENVIO_USER_AGENT ||
+    "Oferta Certa (contato@ofertacerta.com.br)";
+
+  const response = await fetch(
+    `${baseUrl}/api/v2/me/shipment/calculate`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "User-Agent": userAgent
+      },
+      body: JSON.stringify({
+        from: { postal_code: origin },
+        to: { postal_code: destination },
+        products: buildShippingProducts(requestedItems, products),
+        options: {
+          receipt: false,
+          own_hand: false
+        }
+      })
+    }
+  );
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "O Melhor Envio não conseguiu calcular o frete.");
+    throw new Error(
+      data.message ||
+      "O Melhor Envio não conseguiu calcular o frete."
+    );
   }
 
   return (Array.isArray(data) ? data : [])
@@ -102,7 +157,11 @@ export async function calculateShipping({ postalCode, requestedItems, products }
       name: item.name || "Entrega",
       company: item.company?.name || "Transportadora",
       price: Number(item.custom_price || item.price),
-      delivery_time: Number(item.custom_delivery_time || item.delivery_time || 0),
+      delivery_time: Number(
+        item.custom_delivery_time ||
+        item.delivery_time ||
+        0
+      ),
       postal_code: destination
     }))
     .sort((a, b) => a.price - b.price);
