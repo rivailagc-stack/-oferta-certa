@@ -4,7 +4,7 @@ export default function handler(req, res) {
   }
 
   const status = {
-    mp_access_token: Boolean(process.env.MP_ACCESS_TOKEN),
+    mp_access_token: Boolean(process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN),
     supabase_url: Boolean(process.env.SUPABASE_URL),
     supabase_service_key: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
     site_url: Boolean(process.env.SITE_URL),
