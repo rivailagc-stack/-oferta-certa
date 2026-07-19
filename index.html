@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffe600">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>Oferta Certa | Ofertas selecionadas</title>
+  <meta name="description" content="Produtos próprios com pagamento seguro no site e ofertas selecionadas dos principais marketplaces.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-content">
+      <a class="brand" href="index.html" aria-label="Oferta Certa">
+        <span class="brand-icon">⚡</span>
+        <span>
+          <strong>Oferta Certa</strong>
+          <small>Achou, clicou, comprou</small>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <button id="abrirCarrinho" class="cart-header-button" type="button">
+          🛒 Carrinho <span id="cartCount">0</span>
+        </button>
+        <button id="installAppButton" class="admin-link install-app-button" type="button">Instalar app</button>
+        <a class="admin-link" href="admin.html">Administrar</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="promo-strip">
+    <div class="container promo-strip-content">
+      <span>🔥 Ofertas selecionadas</span>
+      <span>⚡ Preços atualizados</span>
+      <span>🛍️ Shopee, Mercado Livre e mais</span>
+    </div>
+  </div>
+
+  
+<section class="trust-strip">
+  <div class="container trust-strip-grid">
+    <article><span>🔒</span><div><strong>Pagamento protegido</strong><small>Pix e cartão processados pelo Mercado Pago</small></div></article>
+    <article><span>🚚</span><div><strong>Entrega ou retirada</strong><small>Compare fretes ou retire gratuitamente</small></div></article>
+    <article><span>⭐</span><div><strong>Ofertas selecionadas</strong><small>Produtos escolhidos pela Oferta Certa</small></div></article>
+    <article><span>🛍️</span><div><strong>Loja híbrida</strong><small>Compra direta e ofertas de marketplaces</small></div></article>
+  </div>
+</section>
+
+<main>
+    <section class="hero">
+      <div class="container">
+        <span class="hero-badge">Ofertas selecionadas</span>
+        <h1>Produtos úteis e ofertas selecionadas</h1>
+        <p>Produtos próprios são pagos dentro da Oferta Certa. Produtos afiliados abrem a oferta oficial do marketplace.</p>
+
+        <div class="hero-share-actions">
+          <button id="divulgarLojaPublica" class="button button-light" type="button">📣 Divulgar loja</button>
+        </div>
+
+        <div class="search-panel search-panel-v18">
+          <input id="busca" type="search" placeholder="Buscar produto..." autocomplete="off">
+
+          <select id="categoria">
+            <option value="">Todas as categorias</option>
+          </select>
+
+          <select id="marketplaceFiltro">
+            <option value="">Todas as lojas</option>
+          </select>
+
+          <select id="ordenacao">
+            <option value="destaques">Destaques primeiro</option>
+            <option value="recentes">Mais recentes</option>
+            <option value="mais-clicados">Mais clicados</option>
+            <option value="menor-preco">Menor preço</option>
+            <option value="maior-preco">Maior preço</option>
+            <option value="az">Nome: A–Z</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="container products-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">OFERTAS</p>
+          <h2>Produtos disponíveis</h2>
+        </div>
+        <span id="contadorProdutos" class="counter">0 produtos</span>
+      </div>
+
+      <div id="mensagem" class="message hidden"></div>
+      <div id="produtos" class="products-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  
+  <section class="promo-dashboard container">
+    <article class="promo-card promo-card-main">
+      <div>
+        <span class="promo-kicker">🔥 OFERTA DO DIA</span>
+        <h2 id="ofertaDoDiaTitulo">Oferta selecionada para você</h2>
+        <p id="ofertaDoDiaTexto">Confira uma das melhores oportunidades disponíveis hoje.</p>
+      </div>
+      <button id="verOfertaDoDia" class="promo-main-button" type="button">Ver oferta</button>
+    </article>
+
+    <article class="promo-card"><span class="promo-icon">⚡</span><div><strong>Ofertas relâmpago</strong><small>Produtos com grandes descontos</small></div></article>
+    <article class="promo-card"><span class="promo-icon">⭐</span><div><strong>Mais procurados</strong><small>Veja o que está chamando atenção</small></div></article>
+    <article class="promo-card"><span class="promo-icon">❤️</span><div><strong>Seus favoritos</strong><small id="favoritosResumo">0 produtos salvos</small></div></article>
+  </section>
+
+  <section class="container flash-section">
+    <div class="section-heading-row">
+      <div><span class="section-kicker">PROMOÇÕES</span><h2>Ofertas relâmpago</h2></div>
+      <div class="countdown-box"><span>Termina em</span><strong id="flashCountdown">05:59:59</strong></div>
+    </div>
+    <div id="flashProducts" class="flash-products"></div>
+  </section>
+
+<footer class="site-footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <strong>⚡ Oferta Certa</strong>
+        <p>Ofertas selecionadas dos principais marketplaces do Brasil.</p>
+      </div>
+
+      <nav class="footer-links" aria-label="Links do rodapé"><a href="quem-somos.html">Quem somos</a>
+        <a href="politica-privacidade.html">Política de Privacidade</a>
+        <a href="termos-de-uso.html">Termos de Uso</a>
+      </nav>
+
+      <small>© 2026 Oferta Certa. Todos os direitos reservados.</small>
+    </div>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="config.js"></script>
+  <script defer src="loja.js"></script>
+  <script defer src="pwa.js"></script>
+  <script defer src="promo.js"></script>
+
+  <div id="produtoModal" class="product-modal hidden" aria-hidden="true">
+    <div class="product-modal-backdrop" data-close-modal></div>
+
+    <section class="product-modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+      <button class="product-modal-close" type="button" data-close-modal aria-label="Fechar">×</button>
+
+      <div class="product-modal-grid">
+        <div>
+          <div class="modal-main-image-wrap">
+            <img id="modalImagemPrincipal" class="modal-main-image" alt="Imagem do produto">
+          </div>
+          <div id="modalMiniaturas" class="modal-thumbnails"></div>
+        </div>
+
+        <div class="modal-product-info">
+          <p id="modalCategoria" class="modal-category"></p>
+          <h2 id="modalTitulo"></h2>
+          <p id="modalDescricao" class="modal-description"></p>
+
+          <div class="modal-price-box">
+            <span id="modalPrecoAnterior" class="old-price"></span>
+            <strong id="modalPreco"></strong>
+          </div>
+
+          <div class="modal-info-row">
+            <span id="modalLoja"></span>
+            <span id="modalCliques"></span>
+          </div>
+
+          <div id="modalVariacoes" class="modal-variations hidden">
+            <label id="modalCorBox" class="hidden">Cor<select id="modalCor"></select></label>
+            <label id="modalTamanhoBox" class="hidden">Variação<select id="modalTamanho"></select></label>
+          </div>
+
+          <button id="modalDivulgar" class="button button-light button-full" type="button">📣 Divulgar produto</button>
+
+          <a id="modalComprar" class="buy-button modal-buy-button" target="_blank" rel="noopener noreferrer sponsored">
+            Comprar agora
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+  <div id="cartDrawer" class="cart-drawer hidden" aria-hidden="true">
+    <div class="cart-backdrop" data-close-cart></div>
+    <aside class="cart-panel" aria-label="Carrinho">
+      <div class="cart-panel-header">
+        <h2>Seu carrinho</h2>
+        <button type="button" class="cart-close" data-close-cart>×</button>
+      </div>
+
+      <div id="cartItems" class="cart-items"></div>
+
+      <div class="shipping-calculator">
+        <label for="shippingCep">Calcular frete pelo CEP</label>
+        <div class="shipping-cep-row">
+          <input id="shippingCep" inputmode="numeric" maxlength="9" placeholder="00000-000">
+          <button id="calcularFrete" type="button">Calcular</button>
+        </div>
+        <div id="shippingMessage" class="shipping-message"></div>
+        <div id="shippingOptions" class="shipping-options"></div>
+      </div>
+
+      <div class="cart-summary">
+        <div><span>Produtos</span><strong id="cartSubtotal">R$ 0,00</strong></div>
+        <div><span>Frete</span><strong id="cartShipping">Calcule o CEP</strong></div>
+        <div class="cart-total"><span>Total</span><strong id="cartTotal">R$ 0,00</strong></div>
+
+        <button id="finalizarCompra" class="buy-button" type="button">
+          Finalizar compra no site
+        </button>
+        <p class="cart-secure">🔒 Pix e cartão protegidos pelo Mercado Pago sem sair da Oferta Certa.</p>
+      </div>
+    </aside>
+  </div>
+
+
+
+  <div id="checkoutModal" class="checkout-modal hidden" aria-hidden="true">
+    <div class="checkout-backdrop" data-close-checkout></div>
+    <section class="checkout-panel" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+      <div class="checkout-header">
+        <div>
+          <span class="checkout-kicker">COMPRA SEGURA</span>
+          <h2 id="checkoutTitle">Finalizar pedido</h2>
+        </div>
+        <button class="checkout-close" type="button" data-close-checkout aria-label="Fechar">×</button>
+      </div>
+
+      <div id="checkoutCustomerStep" class="checkout-step">
+        <div class="checkout-order-summary">
+          <div><span>Produtos</span><strong id="checkoutProductsTotal">R$ 0,00</strong></div>
+          <div><span>Entrega</span><strong id="checkoutShippingTotal">R$ 0,00</strong></div>
+          <div class="checkout-order-total"><span>Total</span><strong id="checkoutGrandTotal">R$ 0,00</strong></div>
+          <small id="checkoutDeliveryLabel"></small>
+        </div>
+
+        <form id="checkoutCustomerForm" class="checkout-customer-form">
+          <div class="checkout-form-grid">
+            <label class="field field-full">
+              <span>Nome completo *</span>
+              <input id="checkoutName" autocomplete="name" required maxlength="120">
+            </label>
+            <label class="field">
+              <span>E-mail *</span>
+              <input id="checkoutEmail" type="email" autocomplete="email" required maxlength="160">
+            </label>
+            <label class="field">
+              <span>Celular *</span>
+              <input id="checkoutPhone" inputmode="tel" autocomplete="tel" required maxlength="16" placeholder="(19) 99999-9999">
+            </label>
+            <label class="field">
+              <span>CPF *</span>
+              <input id="checkoutCpf" inputmode="numeric" autocomplete="off" required maxlength="14" placeholder="000.000.000-00">
+            </label>
+            <label class="field">
+              <span>CEP</span>
+              <input id="checkoutPostalCode" inputmode="numeric" maxlength="9" readonly>
+            </label>
+          </div>
+
+          <div id="checkoutAddressFields" class="checkout-form-grid checkout-address-fields">
+            <label class="field field-full">
+              <span>Rua/Avenida *</span>
+              <input id="checkoutStreet" autocomplete="address-line1" maxlength="180">
+            </label>
+            <label class="field">
+              <span>Número *</span>
+              <input id="checkoutNumber" autocomplete="address-line2" maxlength="20">
+            </label>
+            <label class="field">
+              <span>Complemento</span>
+              <input id="checkoutComplement" maxlength="80" placeholder="Casa, bloco, apartamento...">
+            </label>
+            <label class="field">
+              <span>Bairro *</span>
+              <input id="checkoutNeighborhood" maxlength="100">
+            </label>
+            <label class="field">
+              <span>Cidade *</span>
+              <input id="checkoutCity" autocomplete="address-level2" maxlength="100">
+            </label>
+            <label class="field">
+              <span>Estado *</span>
+              <input id="checkoutState" autocomplete="address-level1" maxlength="2" placeholder="SP">
+            </label>
+          </div>
+
+          <div id="checkoutCustomerMessage" class="message hidden"></div>
+          <button id="continuarPagamento" class="buy-button" type="submit">Continuar para o pagamento</button>
+        </form>
+      </div>
+
+      <div id="checkoutPaymentStep" class="checkout-step hidden">
+        <div class="checkout-payment-heading">
+          <button id="voltarDadosCheckout" class="button button-light" type="button">← Voltar aos dados</button>
+          <div>
+            <strong>Escolha Pix ou cartão</strong>
+            <small>O pagamento é processado com segurança pelo Mercado Pago.</small>
+          </div>
+        </div>
+        <div id="checkoutPaymentMessage" class="message info">Carregando pagamento seguro...</div>
+        <div id="paymentBrick_container"></div>
+      </div>
+
+      <div id="checkoutResultStep" class="checkout-step hidden">
+        <div id="checkoutResult" class="checkout-result"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <script defer src="checkout.js"></script>
+  <script defer src="category-links.js"></script>
+  <script defer src="trust.js"></script>
+</body>
+</html>
