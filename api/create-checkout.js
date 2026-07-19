@@ -228,4 +228,3 @@ function cleanText(value, max) {
 function digits(value) { return String(value || "").replace(/\D/g, ""); }
 function roundMoney(value) { return Math.round((Number(value) + Number.EPSILON) * 100) / 100; }
 function safeJson(text, fallback) { try { return text ? JSON.parse(text) : fallback; } catch { return fallback; } }
-
